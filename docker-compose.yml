@@ -1,0 +1,69 @@
+services:
+  postgres:
+      image: postgres:16-alpine
+      container_name: postgres_mo_poc
+      restart: always
+      env_file:
+        - .env
+      environment:
+        POSTGRES_USER: $DB_USERNAME
+        POSTGRES_PASSWORD: $DB_PASSWORD
+        TZ: 'Asia/Kolkata'
+        PGTZ: 'Asia/Kolkata'
+      ports:
+        - "5433:5432"
+      volumes:
+        - postgres:/data/postgres
+
+  redis:
+      image: redis:7-alpine
+      container_name: redis_mo_poc
+      restart: always
+      networks:
+        - mo-poc-network
+      ports:
+        - "6379:6379"
+      volumes:
+        - redis_data:/data
+
+  kafka:
+      image: confluentinc/cp-kafka:7.6.0
+      container_name: mo_poc_kafka
+      ports:
+        - "9092:9092"
+      environment:
+          # KRaft settings
+          KAFKA_NODE_ID: 1
+          KAFKA_PROCESS_ROLES: "broker,controller"
+          KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+
+          # Listeners
+          KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
+          KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://localhost:9092"
+          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT"
+          KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+
+          # Log dirs (required)
+          KAFKA_LOG_DIRS: "/var/lib/kafka/data"
+
+          # Single-node safe configs
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+          KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+          KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+          # Cluster ID (required for KRaft)
+          CLUSTER_ID: "49mD72ItQN6t6lKzMmdVMw"  # can be any base64-like string
+      volumes:
+          - kafka_data:/var/lib/kafka/data
+      restart: unless-stopped
+
+volumes:
+  postgres:
+    driver: local
+  redis_data:
+    driver: local
+  kafka_data:
+    driver: local
+networks:
+  mo-poc-network:
+    external: true
