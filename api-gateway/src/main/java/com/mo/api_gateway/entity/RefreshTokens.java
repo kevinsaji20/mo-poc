@@ -26,14 +26,17 @@ public class RefreshTokens {
     @Column(name = "token_hash", nullable = false, columnDefinition = "TEXT")
     private String tokenHash;
 
-    @Column(name = "jwt_id", nullable = false)
-    private String jwtId;
+    @Column(name = "token_id", nullable = false)
+    private String tokenId;
 
     @Column(name = "device_id")
     private String deviceId;
 
     @Column(name = "device_name")
     private String deviceName;
+
+    @Column(name="ip_address")
+    private  String ipAddress;
 
     @Column(name = "user_agent")
     private String userAgent;

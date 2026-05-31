@@ -3,7 +3,7 @@ CREATE TABLE refresh_tokens (
     user_id UUID NOT NULL,
     token_hash TEXT NOT NULL,
 
-    jwt_id VARCHAR(255) UNIQUE NOT NULL,
+    token_id UUID UNIQUE NOT NULL,
 
     device_id VARCHAR(255),
     device_name VARCHAR(255),

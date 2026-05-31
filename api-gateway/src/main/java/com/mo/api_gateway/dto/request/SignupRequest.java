@@ -10,20 +10,20 @@ import org.checkerframework.common.value.qual.EnumVal;
 
 public record SignupRequest(
         @Email
-        @NotBlank
+        @NotBlank(message = "Email is required")
         String email,
 
-        @NotBlank
+        @NotBlank(message = "Name is required")
         String fullName,
 
-        @NotBlank
+        @NotBlank(message = "Username is required")
         String username,
 
-        @NotBlank
+        @NotBlank(message = "Password is required")
         @Size(min=8)
         String password,
 
-        @NotBlank
+        @NotBlank(message = "AuthProviderType is required")
         AuthProviderType provider
 ) {
 }

@@ -1,9 +1,11 @@
 package com.mo.api_gateway.dto.response;
 
-public record User (
+import java.util.List;
+
+public record UserResponse(
         String name,
         String username,
         String email,
-        String[] roles,
+        List<String> roles,
         String profilePicture
 ) {}
