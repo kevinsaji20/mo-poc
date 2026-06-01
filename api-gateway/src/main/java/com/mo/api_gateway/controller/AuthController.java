@@ -53,13 +53,7 @@ public class AuthController {
 
         LoginResult response = authService.login(request, metadata);
 
-        ResponseCookie accessCookie = cookieUtil.createAccessTokenCookie(response.accessToken());
-        ResponseCookie refreshCookie = cookieUtil.createRefreshTokenCookie(response.refreshToken());
-        ResponseCookie userCookie = cookieUtil.createUserDetailsCookie(response.user());
-
-        httpResponse.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
-        httpResponse.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-        httpResponse.addHeader(HttpHeaders.SET_COOKIE, userCookie.toString());
+        cookieUtil.addAuthCookie(response, httpResponse);
 
         return ResponseEntity
                 .status(HttpStatus.SC_OK)
@@ -86,13 +80,7 @@ public class AuthController {
 
         LoginResult response = authService.refresh(refreshToken, metadata);
 
-        ResponseCookie accessCookie = cookieUtil.createAccessTokenCookie(response.accessToken());
-        ResponseCookie refreshCookie = cookieUtil.createRefreshTokenCookie(response.refreshToken());
-        ResponseCookie userCookie = cookieUtil.createUserDetailsCookie(response.user());
-
-        httpResponse.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
-        httpResponse.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-        httpResponse.addHeader(HttpHeaders.SET_COOKIE, userCookie.toString());
+        cookieUtil.addAuthCookie(response, httpResponse);
 
         return ResponseEntity
                 .status(HttpStatus.SC_OK)
@@ -100,5 +88,18 @@ public class AuthController {
                         response.status(),
                         response.message()
                 ));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(
+            @CookieValue("refresh_token")
+            String refreshToken,
+            HttpServletResponse httpResponse
+    ) {
+        authService.logout(refreshToken);
+
+        cookieUtil.clearAuthCookie(httpResponse);
+
+        return ResponseEntity.status(HttpStatus.SC_NO_CONTENT).build();
     }
 }

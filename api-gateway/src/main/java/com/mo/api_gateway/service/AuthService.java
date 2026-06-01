@@ -175,8 +175,8 @@ public class AuthService {
         );
     }
 
-    public LoginResult refresh(String request, RequestMetadata metadata) {
-        String[] parts = request.split("\\.", 2);
+    public LoginResult refresh(String refreshToken, RequestMetadata metadata) {
+        String[] parts = refreshToken.split("\\.", 2);
         UUID tokenId = UUID.fromString(parts[0]);
         String secret = parts[1];
 
@@ -215,6 +215,17 @@ public class AuthService {
                 newAccessToken,
                 newRefreshTokenResponse.refreshToken()
         );
+    }
 
+    public void logout(String refreshToken) {
+        String[] parts = refreshToken.split("\\.", 2);
+        UUID tokenId = UUID.fromString(parts[0]);
+
+        RefreshTokens token = refreshTokenRepository
+                .findByTokenIdAndIsRevokedFalse(tokenId)
+                .orElseThrow(() -> new RuntimeException("Invalid Refresh token"));
+
+        token.setIsRevoked(true);
+        token.setRevokedAt(OffsetDateTime.now());
     }
 }
