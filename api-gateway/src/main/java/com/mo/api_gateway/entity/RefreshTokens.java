@@ -26,8 +26,8 @@ public class RefreshTokens {
     @Column(name = "token_hash", nullable = false, columnDefinition = "TEXT")
     private String tokenHash;
 
-    @Column(name = "token_id", nullable = false)
-    private String tokenId;
+    @Column(name = "token_id", nullable = false, unique = true)
+    private UUID tokenId;
 
     @Column(name = "device_id")
     private String deviceId;

@@ -103,10 +103,6 @@ public class JwtUtil {
         return validateToken(token).getSubject();
     }
 
-    public String extractJti (String token) {
-        return validateToken(token).getId();
-    }
-
     public String extractEmail(String token) {
         return validateToken(token).get("email", String.class);
     }

@@ -1,4 +1,4 @@
-package com.mo.api_gateway.enums;
+package com.mo.api_gateway.dto.request;
 
 public record RequestMetadata(
         String ipAddress,

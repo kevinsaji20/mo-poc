@@ -1,15 +1,12 @@
 package com.mo.api_gateway.service;
 
-import com.mo.api_gateway.dto.request.LoginRequest;
-import com.mo.api_gateway.dto.request.SignupRequest;
-import com.mo.api_gateway.dto.response.LoginResult;
-import com.mo.api_gateway.dto.response.SignupResponse;
-import com.mo.api_gateway.dto.response.UserResponse;
+import com.mo.api_gateway.dto.request.*;
+import com.mo.api_gateway.dto.response.*;
 import com.mo.api_gateway.entity.RefreshTokens;
 import com.mo.api_gateway.entity.Role;
 import com.mo.api_gateway.entity.User;
 import com.mo.api_gateway.entity.UserRoles;
-import com.mo.api_gateway.enums.RequestMetadata;
+import com.mo.api_gateway.dto.request.RequestMetadata;
 import com.mo.api_gateway.enums.RoleType;
 import com.mo.api_gateway.enums.UserStatus;
 import com.mo.api_gateway.repository.RefreshTokenRepository;
@@ -24,9 +21,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.Date;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -113,16 +109,18 @@ public class AuthService {
         return user;
     }
 
-    private String createRefreshToken(
+    private CreateRefreshTokenResponse createRefreshToken(
             User user,
             RequestMetadata metadata,
             String accessToken
     ) {
+        UUID tokenId = UUID.randomUUID();
+
         String refreshToken = refreshTokenUtil.generateRefreshToken();
         RefreshTokens entity = new RefreshTokens();
         entity.setUser(user);
         entity.setTokenHash(passwordUtil.hashPassword(refreshToken));
-        entity.setTokenId(jwtUtil.extractJti(accessToken));
+        entity.setTokenId(tokenId);
         entity.setDeviceId(metadata.deviceId());
         entity.setDeviceName(metadata.deviceName());
         entity.setIpAddress(metadata.ipAddress());
@@ -131,7 +129,7 @@ public class AuthService {
         entity.setLastUsedAt(OffsetDateTime.now());
         refreshTokenRepository.save(entity);
 
-        return refreshToken;
+        return new CreateRefreshTokenResponse(entity, tokenId.toString() + '.' + refreshToken);
     }
 
     private UserResponse mapToUserResponse(
@@ -162,25 +160,61 @@ public class AuthService {
 
         updateLastLogin(user);
 
-        String accessToken =
-                jwtUtil.generateToken(user);
+        String accessToken = jwtUtil.generateToken(user);
 
-        String refreshToken =
-                createRefreshToken(
-                        user,
-                        metadata,
-                        accessToken
-                );
+        CreateRefreshTokenResponse refreshTokenResponse = createRefreshToken(user, metadata, accessToken);
 
-        UserResponse userResponse =
-                mapToUserResponse(user);
+        UserResponse userResponse = mapToUserResponse(user);
 
         return new LoginResult(
                 true,
                 "Login Successful",
                 userResponse,
                 accessToken,
-                refreshToken
+                refreshTokenResponse.refreshToken()
         );
+    }
+
+    public LoginResult refresh(String request, RequestMetadata metadata) {
+        String[] parts = request.split("\\.", 2);
+        UUID tokenId = UUID.fromString(parts[0]);
+        String secret = parts[1];
+
+        RefreshTokens token = refreshTokenRepository
+                .findByTokenIdAndIsRevokedFalse(tokenId)
+                .orElseThrow(() -> new RuntimeException("Invalid Refresh token"));
+
+        if(!passwordUtil.verifyPassword(secret, token.getTokenHash())) {
+            throw new RuntimeException("Invalid Refresh token");
+        }
+
+        if(token.getExpiresAt().isBefore(OffsetDateTime.now())){
+            throw new RuntimeException("Refresh token has expired");
+        }
+
+        User user = token.getUser();
+
+        // Revoke Current Refresh token
+        token.setIsRevoked(true);
+        token.setRevokedAt(OffsetDateTime.now());
+
+        // Generate new Access Token
+        String newAccessToken = jwtUtil.generateToken(user);
+
+        // Generate new Refresh token
+        CreateRefreshTokenResponse newRefreshTokenResponse = createRefreshToken(user, metadata, newAccessToken);
+
+        token.setReplacedByToken(newRefreshTokenResponse.entity());
+
+        UserResponse userResponse = mapToUserResponse(user);
+
+        return new LoginResult(
+                true,
+                "Token Refresh Successful",
+                userResponse,
+                newAccessToken,
+                newRefreshTokenResponse.refreshToken()
+        );
+
     }
 }
