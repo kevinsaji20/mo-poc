@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import java.security.KeyFactory;
@@ -21,11 +22,6 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 public class JwtUtil {
-    @Value("${security.jwt.auth-private-key}")
-    private String privateKeyPem;
-
-    @Value("${security.jwt.auth-public-key}")
-    private String publicKeyPem;
 
     @Value("${security.jwt.auth-token-expiration}")
     private long authSecretTokenExpiration;
@@ -33,24 +29,28 @@ public class JwtUtil {
     private PrivateKey privateKey;
     private PublicKey publicKey;
 
-    private PrivateKey loadPrivateKey(String pem) throws Exception {
+    private PrivateKey loadPrivateKey() throws Exception {
+        ClassPathResource resource = new ClassPathResource("keys/private.pem");
+
+        String key = new String(resource.getInputStream().readAllBytes());
         String content =
-                pem.replace("\\n", "")
-                        .replace("-----BEGIN PRIVATE KEY-----", "")
+                key.replace("-----BEGIN PRIVATE KEY-----", "")
                         .replace("-----END PRIVATE KEY-----", "")
-                        .replace("\\s", "");
+                        .replaceAll("\\s", "");
 
         byte[] privateBytes = Base64.getDecoder().decode(content);
 
         return KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(privateBytes));
     }
 
-    private PublicKey loadPublicKey(String pem) throws Exception {
+    private PublicKey loadPublicKey() throws Exception {
+        ClassPathResource resource = new ClassPathResource("keys/public.pem");
+
+        String key = new String(resource.getInputStream().readAllBytes());
         String content =
-                pem.replace("\\n", "")
-                        .replace("-----BEGIN PRIVATE KEY-----", "")
-                        .replace("-----END PRIVATE KEY-----", "")
-                        .replace("\\s", "");
+                key.replace("-----BEGIN PUBLIC KEY-----", "")
+                        .replace("-----END PUBLIC KEY-----", "")
+                        .replaceAll("\\s", "");
 
         byte[] publicBytes = Base64.getDecoder().decode(content);
         return KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(publicBytes));
@@ -59,8 +59,8 @@ public class JwtUtil {
     @PostConstruct
     private void init() {
         try {
-            this.privateKey = loadPrivateKey(privateKeyPem);
-            this.publicKey = loadPublicKey(publicKeyPem);
+            this.privateKey = loadPrivateKey();
+            this.publicKey = loadPublicKey();
         } catch (Exception exception) {
             throw new IllegalStateException("Failed to load JWT keys", exception);
         }

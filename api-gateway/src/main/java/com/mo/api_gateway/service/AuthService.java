@@ -37,7 +37,7 @@ public class AuthService {
     private final RefreshTokenUtil refreshTokenUtil;
     private final PasswordUtil passwordUtil;
 
-    @Value("${security.refresh-token-expiration")
+    @Value("${security.refresh-token-expiration}")
     private long refreshTokenExpiration;
 
     @Transactional

@@ -6,14 +6,16 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
+import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 
+@Component
 public class CookieUtil {
     @Value("${security.jwt.auth-token-expiration}")
     private long authSecretTokenExpiration;
 
-    @Value("${security.refresh-token-expiration")
+    @Value("${security.refresh-token-expiration}")
     private long refreshTokenExpiration;
 
     private ResponseCookie createAccessTokenCookie(String token) {

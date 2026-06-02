@@ -52,8 +52,7 @@
 					<version>3.11.0</version>
 
 					<configuration>
-						<source>${java.version}</source>
-						<target>${java.version}</target>
+						<release>${java.version}</release>
 
 						<annotationProcessorPaths>
 							<path>
