@@ -175,6 +175,7 @@ public class AuthService {
         );
     }
 
+    @Transactional
     public LoginResult refresh(String refreshToken, RequestMetadata metadata) {
         String[] parts = refreshToken.split("\\.", 2);
         UUID tokenId = UUID.fromString(parts[0]);
@@ -217,15 +218,15 @@ public class AuthService {
         );
     }
 
-    public void logout(String refreshToken) {
-        String[] parts = refreshToken.split("\\.", 2);
-        UUID tokenId = UUID.fromString(parts[0]);
+    @Transactional
+    public void logout(String accessToken, RequestMetadata metadata) {
+        UUID userId = UUID.fromString(jwtUtil.extractUserId(accessToken));
 
-        RefreshTokens token = refreshTokenRepository
-                .findByTokenIdAndIsRevokedFalse(tokenId)
+        RefreshTokens refreshToken = refreshTokenRepository
+                .findByUserIdAndDeviceIdAndIsRevokedFalse(userId, metadata.deviceId())
                 .orElseThrow(() -> new RuntimeException("Invalid Refresh token"));
 
-        token.setIsRevoked(true);
-        token.setRevokedAt(OffsetDateTime.now());
+        refreshToken.setIsRevoked(true);
+        refreshToken.setRevokedAt(OffsetDateTime.now());
     }
 }

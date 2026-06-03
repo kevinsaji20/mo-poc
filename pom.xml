@@ -13,6 +13,7 @@
 
 <modules>
 	<module>api-gateway</module>
+	<module>catalog-service</module>
 </modules>
 
 <properties>

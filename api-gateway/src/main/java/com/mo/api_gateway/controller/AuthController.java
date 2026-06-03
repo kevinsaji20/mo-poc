@@ -57,14 +57,15 @@ public class AuthController {
                 .status(HttpStatus.SC_OK)
                 .body(new AuthResponse(
                         response.status(),
-                        response.message()
+                        response.message(),
+                        response.accessToken(),
+                        response.user()
                 ));
     }
 
     @PostMapping("/refesh")
     public ResponseEntity<AuthResponse> refresh(
-            @CookieValue("refresh_token")
-            String refreshToken,
+            @CookieValue("refresh_token") String refreshToken,
             HttpServletRequest httpRequest,
             HttpServletResponse httpResponse
     ) {
@@ -84,17 +85,28 @@ public class AuthController {
                 .status(HttpStatus.SC_OK)
                 .body(new AuthResponse(
                         response.status(),
-                        response.message()
+                        response.message(),
+                        response.accessToken(),
+                        response.user()
                 ));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(
-            @CookieValue("refresh_token")
-            String refreshToken,
+            @RequestHeader("Authorization") String authorization,
+            HttpServletRequest httpRequest,
             HttpServletResponse httpResponse
     ) {
-        authService.logout(refreshToken);
+        String token = authorization.replace("Bearer ", "");
+        RequestMetadata metadata =
+                new RequestMetadata(
+                        httpRequest.getRemoteAddr(),
+                        httpRequest.getHeader("User-Agent"),
+                        httpRequest.getHeader("X-Device-Id"),
+                        httpRequest.getHeader("X-Device-Name")
+                );
+
+        authService.logout(token, metadata);
 
         cookieUtil.clearAuthCookie(httpResponse);
 
