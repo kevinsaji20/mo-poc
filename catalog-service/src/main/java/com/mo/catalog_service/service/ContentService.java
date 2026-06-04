@@ -1,7 +1,5 @@
 package com.mo.catalog_service.service;
 
-import com.mo.catalog_service.kafka.event.ContentArchivedEvent;
-import com.mo.catalog_service.kafka.event.ContentPublishedEvent;
 import com.mo.catalog_service.dto.request.CreateContentRequest;
 import com.mo.catalog_service.dto.request.UpdateContentRequest;
 import com.mo.catalog_service.dto.response.ContentResponse;
@@ -13,6 +11,8 @@ import com.mo.catalog_service.exception.ContentNotFoundException;
 import com.mo.catalog_service.kafka.producer.ContentEventProducer;
 import com.mo.catalog_service.mapper.ContentMapper;
 import com.mo.catalog_service.repository.MediaContentRepository;
+import com.mo.common.kafka.event.ContentArchivedEvent;
+import com.mo.common.kafka.event.ContentPublishedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -117,7 +117,7 @@ public class ContentService {
             producer.publishContentPublished(
                     new ContentPublishedEvent(
                             content.getId(),
-                            content.getContentType(),
+                            content.getContentType().toString(),
                             content.getTitle(),
                             content.getUpdatedAt()
                     )

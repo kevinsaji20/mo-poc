@@ -13,6 +13,7 @@
 
 <modules>
 	<module>common/common-kafka</module>
+	<module>common/common-security</module>
 	<module>api-gateway</module>
 	<module>catalog-service</module>
 </modules>

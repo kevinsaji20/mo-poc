@@ -1,28 +1,50 @@
 package com.mo.catalog_service.kafka.producer;
 
-import com.mo.catalog_service.kafka.event.ContentArchivedEvent;
-import com.mo.catalog_service.kafka.event.ContentPublishedEvent;
+import com.mo.common.kafka.constants.KafkaTopics;
+import com.mo.common.kafka.enums.EventType;
+import com.mo.common.kafka.envelope.EventEnvelope;
+import com.mo.common.kafka.event.ContentArchivedEvent;
+import com.mo.common.kafka.event.ContentPublishedEvent;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
+
+import java.time.OffsetDateTime;
+import java.util.UUID;
+
 
 @Component
 @RequiredArgsConstructor
 public class ContentEventProducer {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    @Value("${kafka.topic.content-published}")
-    private String contentPublishedTopic;
-
-    @Value("${kafka.topic.content-archived}")
-    private String contentArchivedTopic;
-
     public void publishContentPublished(ContentPublishedEvent event) {
-        kafkaTemplate.send(contentPublishedTopic, event.contentId().toString(), event);
+        EventEnvelope<ContentPublishedEvent> envelope = new EventEnvelope<>(
+                UUID.randomUUID(),
+                EventType.CONTENT_PUBLISHED,
+                OffsetDateTime.now(),
+                event
+        );
+
+        kafkaTemplate.send(
+                KafkaTopics.CONTENT_PUBLISHED,
+                event.contentId().toString(),
+                envelope
+        );
     }
 
     public void  publishContentArchived(ContentArchivedEvent event) {
-        kafkaTemplate.send(contentArchivedTopic, event.contentId().toString(), event);
+        EventEnvelope<ContentArchivedEvent> envelope = new EventEnvelope<>(
+                UUID.randomUUID(),
+                EventType.CONTENT_ARCHIVED,
+                OffsetDateTime.now(),
+                event
+        );
+
+        kafkaTemplate.send(
+                KafkaTopics.CONTENT_ARCHIVED,
+                event.contentId().toString(),
+                envelope
+        );
     }
 }
