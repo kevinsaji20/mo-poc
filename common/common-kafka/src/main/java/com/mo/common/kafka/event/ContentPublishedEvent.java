@@ -1,13 +1,11 @@
-package com.mo.catalog_service.kafka.event;
-
-import com.mo.catalog_service.enums.ContentType;
+package com.mo.common.kafka.event;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public record ContentPublishedEvent(
         UUID contentId,
-        ContentType contentType,
+        String contentType,
         String title,
         OffsetDateTime publishedAt
 ) {
