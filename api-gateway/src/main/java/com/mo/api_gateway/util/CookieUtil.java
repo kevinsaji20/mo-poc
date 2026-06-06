@@ -1,20 +1,16 @@
 package com.mo.api_gateway.util;
 
 import com.mo.api_gateway.dto.response.LoginResult;
-import com.mo.api_gateway.dto.response.UserResponse;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 
 @Component
 public class CookieUtil {
-    @Value("${security.jwt.auth-token-expiration}")
-    private long authSecretTokenExpiration;
-
     @Value("${security.refresh-token-expiration}")
     private long refreshTokenExpiration;
 
@@ -39,15 +35,11 @@ public class CookieUtil {
                 .build();
     }
 
-    public void addAuthCookie(LoginResult result, HttpServletResponse httpResponse) {
-        ResponseCookie refreshCookie = createRefreshTokenCookie(result.refreshToken());
-
-        httpResponse.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+    public void addAuthCookie(LoginResult result, ServerHttpResponse httpResponse) {
+        httpResponse.addCookie(createRefreshTokenCookie(result.refreshToken()));
     }
 
-    public void clearAuthCookie(HttpServletResponse httpResponse) {
-        ResponseCookie refreshCookie = clearCookie("refresh_token");
-
-        httpResponse.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+    public void clearAuthCookie(ServerHttpResponse httpResponse) {
+        httpResponse.addCookie(clearCookie("refresh_token"));
     }
 }

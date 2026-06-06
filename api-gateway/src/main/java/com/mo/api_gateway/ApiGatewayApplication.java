@@ -3,7 +3,13 @@ package com.mo.api_gateway;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(
+		scanBasePackages = {
+				"com.mo.api-gateway",
+				"com.mo.common.security",
+				"com.mo.common.web"
+		}
+)
 public class ApiGatewayApplication {
 
 	public static void main(String[] args) {

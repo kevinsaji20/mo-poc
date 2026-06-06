@@ -9,9 +9,9 @@
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<groupId>com.mo</groupId>
-	<artifactId>common-security</artifactId>
+	<artifactId>common-web</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>common-security</name>
+	<name>common-web</name>
 	<description/>
 	<url/>
 	<licenses>
@@ -28,7 +28,6 @@
 	</scm>
 	<properties>
 		<java.version>17</java.version>
-		<spring.boot.version>3.5.11</spring.boot.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -44,12 +43,14 @@
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
+			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.42</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -63,7 +64,6 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>${spring.boot.version}</version>
 			</plugin>
 		</plugins>
 	</build>

@@ -207,6 +207,8 @@ public class AuthService {
 
         token.setReplacedByToken(newRefreshTokenResponse.entity());
 
+        refreshTokenRepository.save(token);
+
         UserResponse userResponse = mapToUserResponse(user);
 
         return new LoginResult(
@@ -228,5 +230,7 @@ public class AuthService {
 
         refreshToken.setIsRevoked(true);
         refreshToken.setRevokedAt(OffsetDateTime.now());
+
+        refreshTokenRepository.save(refreshToken);
     }
 }

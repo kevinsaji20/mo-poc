@@ -8,13 +8,14 @@ import com.mo.api_gateway.dto.response.SignupResponse;
 import com.mo.api_gateway.dto.request.RequestMetadata;
 import com.mo.api_gateway.service.AuthService;
 import com.mo.api_gateway.util.CookieUtil;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.http.HttpStatus;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/auth")
@@ -24,92 +25,94 @@ public class AuthController {
     private final AuthService authService;
     private final CookieUtil cookieUtil;
 
+    private RequestMetadata buildMetadata(
+            ServerHttpRequest request
+    ) {
+        return new RequestMetadata(
+                request.getRemoteAddress() != null
+                        ? request.getRemoteAddress()
+                        .getAddress()
+                        .getHostAddress()
+                        : null,
+                request.getHeaders().getFirst("User-Agent"),
+                request.getHeaders().getFirst("X-Device-Id"),
+                request.getHeaders().getFirst("X-Device-Name")
+        );
+    }
+
     @PostMapping("/signup")
-    public ResponseEntity<SignupResponse> signup(
+    public Mono<ResponseEntity<SignupResponse>> signup(
             @Valid @RequestBody SignupRequest request
     ) {
         SignupResponse response = authService.signup(request);
 
-        return ResponseEntity
-                .status(HttpStatus.SC_CREATED)
-                .body(response);
+        return Mono.just(
+            ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response)
+        );
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(
+    public Mono<ResponseEntity<AuthResponse>> login(
             @Valid @RequestBody LoginRequest request,
-            HttpServletRequest httpRequest,
-            HttpServletResponse httpResponse
+            ServerHttpRequest httpRequest,
+            ServerHttpResponse httpResponse
     ) {
-        RequestMetadata metadata =
-                new RequestMetadata(
-                        httpRequest.getRemoteAddr(),
-                        httpRequest.getHeader("User-Agent"),
-                        httpRequest.getHeader("X-Device-Id"),
-                        httpRequest.getHeader("X-Device-Name")
-                );
+        RequestMetadata metadata = buildMetadata(httpRequest);
 
         LoginResult response = authService.login(request, metadata);
 
         cookieUtil.addAuthCookie(response, httpResponse);
 
-        return ResponseEntity
-                .status(HttpStatus.SC_OK)
+        return Mono.just(
+                ResponseEntity
+                .status(HttpStatus.OK)
                 .body(new AuthResponse(
                         response.status(),
                         response.message(),
                         response.accessToken(),
                         response.user()
-                ));
+                ))
+        );
     }
 
-    @PostMapping("/refesh")
-    public ResponseEntity<AuthResponse> refresh(
+    @PostMapping("/refresh")
+    public Mono<ResponseEntity<AuthResponse>> refresh(
             @CookieValue("refresh_token") String refreshToken,
-            HttpServletRequest httpRequest,
-            HttpServletResponse httpResponse
+            ServerHttpRequest httpRequest,
+            ServerHttpResponse httpResponse
     ) {
-        RequestMetadata metadata =
-                new RequestMetadata(
-                        httpRequest.getRemoteAddr(),
-                        httpRequest.getHeader("User-Agent"),
-                        httpRequest.getHeader("X-Device-Id"),
-                        httpRequest.getHeader("X-Device-Name")
-                );
+        RequestMetadata metadata = buildMetadata(httpRequest);
 
         LoginResult response = authService.refresh(refreshToken, metadata);
 
         cookieUtil.addAuthCookie(response, httpResponse);
 
-        return ResponseEntity
-                .status(HttpStatus.SC_OK)
+        return Mono.just(ResponseEntity
+                .status(HttpStatus.OK)
                 .body(new AuthResponse(
                         response.status(),
                         response.message(),
                         response.accessToken(),
                         response.user()
-                ));
+                ))
+        );
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(
+    public Mono<ResponseEntity<Void>> logout(
             @RequestHeader("Authorization") String authorization,
-            HttpServletRequest httpRequest,
-            HttpServletResponse httpResponse
+            ServerHttpRequest httpRequest,
+            ServerHttpResponse httpResponse
     ) {
         String token = authorization.replace("Bearer ", "");
-        RequestMetadata metadata =
-                new RequestMetadata(
-                        httpRequest.getRemoteAddr(),
-                        httpRequest.getHeader("User-Agent"),
-                        httpRequest.getHeader("X-Device-Id"),
-                        httpRequest.getHeader("X-Device-Name")
-                );
+        RequestMetadata metadata = buildMetadata(httpRequest);
 
         authService.logout(token, metadata);
 
         cookieUtil.clearAuthCookie(httpResponse);
 
-        return ResponseEntity.status(HttpStatus.SC_NO_CONTENT).build();
+        return Mono.just(ResponseEntity.status(HttpStatus.NO_CONTENT).build());
     }
 }

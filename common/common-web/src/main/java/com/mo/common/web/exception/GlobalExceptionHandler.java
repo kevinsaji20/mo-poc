@@ -1,23 +1,20 @@
-package com.mo.api_gateway.exception;
+package com.mo.common.web.exception;
 
 import com.mo.common.web.enums.ErrorCode;
-import com.mo.common.web.exception.BaseException;
 import com.mo.common.web.response.ErrorResponse;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.bind.support.WebExchangeBindException;
-import reactor.core.publisher.Mono;
 
 import java.time.OffsetDateTime;
-
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BaseException.class)
-    public Mono<ResponseEntity<ErrorResponse>> handleBaseException(
+    public ResponseEntity<ErrorResponse> handleBaseException(
             BaseException exception
     ) {
 
@@ -28,19 +25,18 @@ public class GlobalExceptionHandler {
                 .timestamp(OffsetDateTime.now())
                 .build();
 
-        return Mono.just(
-                ResponseEntity
-                        .status(exception.getStatus())
-                        .body(response)
-        );
+        return ResponseEntity
+                .status(exception.getStatus())
+                .body(response);
     }
 
-    @ExceptionHandler(WebExchangeBindException.class)
-    public Mono<ResponseEntity<ErrorResponse>> handleValidationException(
-            WebExchangeBindException exception
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidation(
+            MethodArgumentNotValidException ex
     ) {
 
-        String message = exception.getFieldErrors()
+        String message = ex.getBindingResult()
+                .getFieldErrors()
                 .stream()
                 .findFirst()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
@@ -53,14 +49,12 @@ public class GlobalExceptionHandler {
                 .timestamp(OffsetDateTime.now())
                 .build();
 
-        return Mono.just(
-                ResponseEntity.badRequest().body(response)
-        );
+        return ResponseEntity.badRequest().body(response);
     }
 
     @ExceptionHandler(Exception.class)
-    public Mono<ResponseEntity<ErrorResponse>> handleException(
-            Exception exception
+    public ResponseEntity<ErrorResponse> handleException(
+            Exception ex
     ) {
 
         ErrorResponse response = ErrorResponse.builder()
@@ -70,8 +64,6 @@ public class GlobalExceptionHandler {
                 .timestamp(OffsetDateTime.now())
                 .build();
 
-        return Mono.just(
-                ResponseEntity.status(500).body(response)
-        );
+        return ResponseEntity.internalServerError().body(response);
     }
 }
