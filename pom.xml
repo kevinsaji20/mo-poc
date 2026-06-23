@@ -17,6 +17,7 @@
 	<module>common/common-web</module>
 	<module>api-gateway</module>
 	<module>catalog-service</module>
+	<module>ingestion-service</module>
 </modules>
 
 <properties>
