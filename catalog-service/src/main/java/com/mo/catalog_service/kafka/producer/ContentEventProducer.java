@@ -3,8 +3,8 @@ package com.mo.catalog_service.kafka.producer;
 import com.mo.common.kafka.constants.KafkaTopics;
 import com.mo.common.kafka.enums.EventType;
 import com.mo.common.kafka.envelope.EventEnvelope;
-import com.mo.common.kafka.event.ContentArchivedEvent;
-import com.mo.common.kafka.event.ContentPublishedEvent;
+import com.mo.catalog_service.kafka.event.ContentArchivedEvent;
+import com.mo.catalog_service.kafka.event.ContentPublishedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -28,7 +28,7 @@ public class ContentEventProducer {
 
         kafkaTemplate.send(
                 KafkaTopics.CONTENT_PUBLISHED,
-                event.contentId().toString(),
+                envelope.eventId().toString(),
                 envelope
         );
     }
@@ -43,7 +43,7 @@ public class ContentEventProducer {
 
         kafkaTemplate.send(
                 KafkaTopics.CONTENT_ARCHIVED,
-                event.contentId().toString(),
+                envelope.eventId().toString(),
                 envelope
         );
     }

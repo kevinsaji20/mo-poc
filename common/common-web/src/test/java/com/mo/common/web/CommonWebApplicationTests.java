@@ -1,4 +1,4 @@
-package com.example.common_web;
+package com.mo.common.web;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

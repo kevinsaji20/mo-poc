@@ -1,4 +1,4 @@
-package com.mo.common.kafka.event;
+package com.mo.catalog_service.kafka.event;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
