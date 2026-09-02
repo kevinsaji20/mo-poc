@@ -1,8 +1,8 @@
 package com.mo.ingestion_service.dto.request;
 
 
-import com.mo.ingestion_service.enums.DeviceType;
-import com.mo.ingestion_service.enums.IngestionType;
+import com.mo.common.kafka.enums.DeviceType;
+import com.mo.common.kafka.enums.IngestionType;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.PositiveOrZero;

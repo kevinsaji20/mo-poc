@@ -1,4 +1,4 @@
-package com.mo.ingestion_service.enums;
+package com.mo.common.kafka.enums;
 
 public enum IngestionType {
     PLAY,
