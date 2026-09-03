@@ -1,4 +1,4 @@
-package com.mo.processing_service.kafka.state;
+package com.mo.processing_service.kafka.state.watchtime;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

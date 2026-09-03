@@ -10,7 +10,7 @@ public record CompletionMetric(
         OffsetDateTime windowEnd,
         int playCount,
         int completeCount,
-        BigDecimal completionRate,
+        double completionRate,
         OffsetDateTime computedAt
 ) {
 }

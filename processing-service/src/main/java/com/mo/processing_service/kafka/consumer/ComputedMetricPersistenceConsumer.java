@@ -4,7 +4,9 @@ import com.mo.common.kafka.constants.KafkaConsumers;
 import com.mo.common.kafka.constants.KafkaTopics;
 import com.mo.common.kafka.envelope.EventEnvelope;
 import com.mo.common.kafka.events.ComputedMetricEvent;
+import com.mo.processing_service.entity.CompletionMetric;
 import com.mo.processing_service.entity.WatchTimeMetric;
+import com.mo.processing_service.service.CompletionRateService;
 import com.mo.processing_service.service.WatchTimeMetricService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ComputedMetricPersistenceConsumer {
     private final WatchTimeMetricService watchTimeMetricService;
+    private final CompletionRateService completionRateService;
 
     @KafkaListener(
             topics = KafkaTopics.COMPUTED_METRICS_EVENTS,
@@ -23,6 +26,7 @@ public class ComputedMetricPersistenceConsumer {
         ComputedMetricEvent event = envelope.payload();
          switch (event.metricType()) {
             case WATCH_TIME -> watchTimeMetricService.process((WatchTimeMetric) event.value());
+            case COMPLETION_RATE -> completionRateService.process((CompletionMetric) event.value());
         }
     }
 }

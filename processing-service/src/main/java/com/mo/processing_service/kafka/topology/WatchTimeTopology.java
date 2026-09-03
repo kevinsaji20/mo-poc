@@ -7,9 +7,9 @@ import com.mo.common.kafka.events.ComputedMetricEvent;
 import com.mo.common.kafka.events.IngestionEvent;
 import com.mo.processing_service.entity.WatchTimeMetric;
 import com.mo.processing_service.kafka.producer.ComputedMetricsProducer;
-import com.mo.processing_service.kafka.state.WatchTimeAggregate;
-import com.mo.processing_service.kafka.state.WatchTimeContribution;
-import com.mo.processing_service.kafka.state.WatchTimeSessionState;
+import com.mo.processing_service.kafka.state.watchtime.WatchTimeAggregate;
+import com.mo.processing_service.kafka.state.watchtime.WatchTimeContribution;
+import com.mo.processing_service.kafka.state.watchtime.WatchTimeSessionState;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
@@ -30,9 +30,8 @@ import java.util.UUID;
 public class WatchTimeTopology {
     private static final Duration WATCH_TIME_WINDOW = Duration.ofMinutes(5);
 
-    private final JsonSerde<WatchTimeSessionState> sessionStateSerde;
-    private final JsonSerde<WatchTimeAggregate> aggregateSerde;
-    private final JsonSerde<ComputedMetricEvent> computedMetricEventSerde;
+    private final JsonSerde<WatchTimeSessionState> watchTimeSessionStateSerde;
+    private final JsonSerde<WatchTimeAggregate> watchTimeAggregateSerde;
 
     private final ComputedMetricsProducer computedMetricsProducer;
 
@@ -75,7 +74,7 @@ public class WatchTimeTopology {
                                                 "watch-time-store"
                                         )
                                         .withKeySerde(Serdes.String())
-                                        .withValueSerde(sessionStateSerde)
+                                        .withValueSerde(watchTimeSessionStateSerde)
                         );
 
         KTable<Windowed<UUID>, WatchTimeAggregate> watchTimeMetrics =
@@ -119,7 +118,7 @@ public class WatchTimeTopology {
                                                 "watch-time-metric-store"
                                         )
                                         .withKeySerde(Serdes.UUID())
-                                        .withValueSerde(aggregateSerde)
+                                        .withValueSerde(watchTimeAggregateSerde)
                         );
         watchTimeMetrics
                 .suppress(

@@ -1,4 +1,4 @@
-package com.mo.processing_service.kafka.state;
+package com.mo.processing_service.kafka.state.watchtime;
 
 import com.mo.common.kafka.enums.IngestionType;
 import lombok.AllArgsConstructor;
