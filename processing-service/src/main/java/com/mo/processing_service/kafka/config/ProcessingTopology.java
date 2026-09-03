@@ -6,6 +6,7 @@ import com.mo.common.kafka.envelope.EventEnvelope;
 import com.mo.common.kafka.events.IngestionEvent;
 import com.mo.processing_service.kafka.serde.EventEnvelopeSerde;
 import com.mo.processing_service.kafka.timestamp.IngestionEventTimestampExtractor;
+import com.mo.processing_service.kafka.topology.CompletionRateTopology;
 import com.mo.processing_service.kafka.topology.WatchTimeTopology;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.serialization.Serde;
@@ -21,6 +22,7 @@ import org.springframework.context.annotation.Configuration;
 public class ProcessingTopology {
     private final ObjectMapper objectMapper;
     private final WatchTimeTopology watchTimeTopology;
+    private final CompletionRateTopology completionRateTopology;
 
     @Bean
     public KStream<String, EventEnvelope<IngestionEvent>> stream (
@@ -43,6 +45,7 @@ public class ProcessingTopology {
         );
 
         watchTimeTopology.build(events);
+        completionRateTopology.build(events);
 
         return events;
     }
