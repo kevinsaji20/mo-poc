@@ -5,7 +5,6 @@ import com.mo.common.kafka.enums.MetricType;
 import com.mo.common.kafka.envelope.EventEnvelope;
 import com.mo.common.kafka.events.ComputedMetricEvent;
 import com.mo.common.kafka.events.IngestionEvent;
-import com.mo.processing_service.entity.CompletionMetric;
 import com.mo.processing_service.entity.DropoffHeatmap;
 import com.mo.processing_service.kafka.producer.ComputedMetricsProducer;
 import com.mo.processing_service.kafka.state.dropoff.DropoffAggregate;
@@ -127,7 +126,7 @@ public class DropoffHeatmapTopology {
     ) {
         return new ComputedMetricEvent(
                 metric.contentId(),
-                MetricType.COMPLETION_RATE,
+                MetricType.DROPOFF_HEATMAP,
                 metric.windowStart(),
                 metric.windowEnd(),
                 metric,

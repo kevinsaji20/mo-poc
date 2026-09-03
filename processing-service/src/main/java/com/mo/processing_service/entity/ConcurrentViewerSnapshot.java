@@ -9,7 +9,7 @@ public record ConcurrentViewerSnapshot(
         OffsetDateTime windowStart,
         OffsetDateTime windowEnd,
         int peakViewers,
-        BigDecimal avgViewers,
+        double avgViewers,
         OffsetDateTime computedAt
 ) {
 }

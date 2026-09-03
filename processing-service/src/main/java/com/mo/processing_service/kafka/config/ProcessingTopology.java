@@ -7,6 +7,7 @@ import com.mo.common.kafka.events.IngestionEvent;
 import com.mo.processing_service.kafka.serde.EventEnvelopeSerde;
 import com.mo.processing_service.kafka.timestamp.IngestionEventTimestampExtractor;
 import com.mo.processing_service.kafka.topology.CompletionRateTopology;
+import com.mo.processing_service.kafka.topology.ConcurrentViewerTopology;
 import com.mo.processing_service.kafka.topology.DropoffHeatmapTopology;
 import com.mo.processing_service.kafka.topology.WatchTimeTopology;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class ProcessingTopology {
     private final WatchTimeTopology watchTimeTopology;
     private final CompletionRateTopology completionRateTopology;
     private final DropoffHeatmapTopology dropoffHeatmapTopology;
+    private final ConcurrentViewerTopology concurrentViewerTopology;
 
     @Bean
     public KStream<String, EventEnvelope<IngestionEvent>> stream (
@@ -49,6 +51,7 @@ public class ProcessingTopology {
         watchTimeTopology.build(events);
         completionRateTopology.build(events);
         dropoffHeatmapTopology.build(events);
+        completionRateTopology.build(events);
 
         return events;
     }
