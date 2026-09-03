@@ -1,6 +1,7 @@
 package com.mo.processing_service.kafka.config;
 
 import com.mo.processing_service.kafka.state.completion.CompletionAggregate;
+import com.mo.processing_service.kafka.state.dropoff.DropoffAggregate;
 import com.mo.processing_service.kafka.state.watchtime.WatchTimeAggregate;
 import com.mo.processing_service.kafka.state.watchtime.WatchTimeSessionState;
 import org.springframework.context.annotation.Bean;
@@ -22,5 +23,10 @@ public class KafkaSerdeConfig {
     @Bean
     public JsonSerde<CompletionAggregate> completionAggregateSerde() {
         return new JsonSerde<>(CompletionAggregate.class);
+    }
+
+    @Bean
+    public  JsonSerde<DropoffAggregate> dropoffAggregateSerde() {
+        return new JsonSerde<>(DropoffAggregate.class);
     }
 }
