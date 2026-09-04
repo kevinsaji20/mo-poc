@@ -3,6 +3,7 @@ package com.mo.query_service.repository;
 import com.mo.query_service.entity.CompletionMetrics;
 import com.mo.query_service.entity.CompletionMetricsId;
 import com.mo.query_service.projections.CompletionProjection;
+import com.mo.query_service.projections.MostCompletedProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -33,5 +34,25 @@ public interface CompletionMetricsRepository
             @Param("from") OffsetDateTime from,
             @Param("to") OffsetDateTime to,
             @Param("granularity") String granularity
+    );
+
+    @Query(value = """
+        SELECT
+            content_id AS contentId,
+            SUM(complete_count) AS completeCount
+        FROM completion_metrics
+        WHERE window_start >= :from
+            AND window_end <= :to
+            AND play_count > 50
+        GROUP BY content_id
+        ORDER BY completeCount DESC
+        LIMIT :size
+        OFFSET :offset
+        """, nativeQuery = true)
+    List<MostCompletedProjection> findMostCompleted(
+            @Param("from") OffsetDateTime from,
+            @Param("to") OffsetDateTime to,
+            @Param("size") int size,
+            @Param("offset") int offset
     );
 }

@@ -10,6 +10,7 @@ public record MetricsQueryRequest (
         Granularity granularity,
         Integer page,
         Integer size,
+        Integer offset,
         String sortBy,
         String sortDir
 ) {

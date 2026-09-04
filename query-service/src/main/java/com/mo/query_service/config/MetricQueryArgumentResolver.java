@@ -17,7 +17,7 @@ import java.time.OffsetDateTime;
 @Configuration
 @RequiredArgsConstructor
 public class MetricQueryArgumentResolver implements HandlerMethodArgumentResolver {
-    private static final int DEFAULT_PAGE = 0;
+    private static final int DEFAULT_PAGE = 1;
     private static final int DEFAULT_SIZE = 20;
     private static final int MAX_SIZE = 100;
 
@@ -64,6 +64,8 @@ public class MetricQueryArgumentResolver implements HandlerMethodArgumentResolve
                 ? Integer.parseInt(sizeParam)
                 : DEFAULT_SIZE;
 
+        int offset = (page-1) * size;
+
         if (page < 0) {
             throw new InvalidMetricQueryException("page must be greater than or equal to 0");
         }
@@ -82,6 +84,7 @@ public class MetricQueryArgumentResolver implements HandlerMethodArgumentResolve
                 granularity,
                 page,
                 size,
+                offset,
                 sortBy,
                 sortDir
         );

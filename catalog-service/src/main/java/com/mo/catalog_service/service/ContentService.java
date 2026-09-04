@@ -1,5 +1,6 @@
 package com.mo.catalog_service.service;
 
+import com.mo.catalog_service.dto.request.ContentQueryParamRequest;
 import com.mo.catalog_service.dto.request.CreateContentRequest;
 import com.mo.catalog_service.dto.request.UpdateContentRequest;
 import com.mo.catalog_service.dto.response.ContentResponse;
@@ -11,15 +12,17 @@ import com.mo.catalog_service.exception.ContentNotFoundException;
 import com.mo.catalog_service.kafka.producer.ContentEventProducer;
 import com.mo.catalog_service.mapper.ContentMapper;
 import com.mo.catalog_service.repository.MediaContentRepository;
+import com.mo.catalog_service.specifications.MediaContentSpecifications;
 import com.mo.common.kafka.events.ContentArchivedEvent;
 import com.mo.common.kafka.events.ContentPublishedEvent;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.awt.*;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +34,20 @@ public class ContentService {
     private final MediaContentRepository mediaContentRepository;
     private final ContentMapper contentMapper;
     private final ContentEventProducer producer;
+
+    public List<ContentResponse> getContent(ContentQueryParamRequest queryParams) {
+        Specification<MediaContent> specification =
+                Specification.<MediaContent>unrestricted()
+                        .and(MediaContentSpecifications.hasGenre(queryParams.genre()))
+                        .and(MediaContentSpecifications.hasContentType(queryParams.contentType()))
+                        .and(MediaContentSpecifications.hasContentStatus(queryParams.contentStatus()));
+
+        List<MediaContent> contents = mediaContentRepository.findAll(specification);
+
+        return contents.stream()
+                .map(contentMapper::toResponse)
+                .toList();
+    }
 
     @Transactional
     public ContentResponse createContent(CreateContentRequest request) {

@@ -1,5 +1,6 @@
 package com.mo.catalog_service.controller;
 
+import com.mo.catalog_service.dto.request.ContentQueryParamRequest;
 import com.mo.catalog_service.dto.request.CreateContentRequest;
 import com.mo.catalog_service.dto.request.UpdateContentRequest;
 import com.mo.catalog_service.dto.response.ContentResponse;
@@ -21,6 +22,15 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ContentController {
     private final ContentService contentService;
+
+    @GetMapping
+    public ResponseEntity<List<ContentResponse>> getContents(
+            @Valid @ModelAttribute ContentQueryParamRequest queryParams
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(contentService.getContent(queryParams));
+    }
 
     @PostMapping
     @PreAuthorize("hasRole('CONTENT_ADMIN')")

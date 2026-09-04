@@ -27,7 +27,7 @@ public class MetricsService {
     private final MetricsSummaryRepository metricsSummaryRepository;
 
 
-    public SummaryResponse getSummary(UUID contentId, MetricsQueryRequest request) {
+    public SummaryResponse getSummary(UUID contentId, MetricsQueryRequest queryParams) {
         if (!catalogClient.contentExists(contentId)) {
             throw new ContentNotFoundException();
         }
@@ -35,8 +35,8 @@ public class MetricsService {
         MetricsSummaryProjection projection =
                 metricsSummaryRepository.getSummary(
                         contentId,
-                        request.from(),
-                        request.to()
+                        queryParams.from(),
+                        queryParams.to()
                 );
 
         BigDecimal completionRate =
@@ -59,19 +59,19 @@ public class MetricsService {
         );
     }
 
-    public List<WatchTimeResponse> getWatchTime(UUID contentId, MetricsQueryRequest request) {
+    public List<WatchTimeResponse> getWatchTime(UUID contentId, MetricsQueryRequest queryParams) {
         if(!catalogClient.contentExists(contentId)) {
             throw new ContentNotFoundException();
         }
 
-        String granularity = request.granularity().toString().toLowerCase();
+        String granularity = queryParams.granularity().toString().toLowerCase();
 
         List<WatchTimeProjection> projections =
                 watchTimeMetricsRepository
                         .findWatchTime(
                             contentId,
-                            request.from(),
-                            request.to(),
+                                queryParams.from(),
+                                queryParams.to(),
                             granularity
                         );
 
@@ -85,18 +85,18 @@ public class MetricsService {
                 .toList();
     }
 
-    public List<CompletionResponse> getCompletion(UUID contentId, MetricsQueryRequest request) {
+    public List<CompletionResponse> getCompletion(UUID contentId, MetricsQueryRequest queryParams) {
         if(!catalogClient.contentExists(contentId)) {
             throw new ContentNotFoundException();
         }
 
-        String granularity = request.granularity().toString().toLowerCase();
+        String granularity = queryParams.granularity().toString().toLowerCase();
 
         List<CompletionProjection> projections =
                 completionMetricsRepository.findCompletion(
                         contentId,
-                        request.from(),
-                        request.to(),
+                        queryParams.from(),
+                        queryParams.to(),
                         granularity
                 );
 
@@ -125,18 +125,18 @@ public class MetricsService {
                 .toList();
     }
 
-    public List<DropoffResponse> getDropoff(UUID contentId, MetricsQueryRequest request) {
+    public List<DropoffResponse> getDropoff(UUID contentId, MetricsQueryRequest queryParams) {
         if(!catalogClient.contentExists(contentId)) {
             throw new ContentNotFoundException();
         }
 
-        String granularity = request.granularity().toString().toLowerCase();
+        String granularity = queryParams.granularity().toString().toLowerCase();
 
         List<DropoffProjection> projections =
                 dropoffHeatmapRepository.findDropoff(
                         contentId,
-                        request.from(),
-                        request.to()
+                        queryParams.from(),
+                        queryParams.to()
                 );
         return projections.stream()
                 .map(projection -> new DropoffResponse(
@@ -148,7 +148,7 @@ public class MetricsService {
 
     public List<ConcurrentViewersResponse> getConcurrentViewers(
             UUID contentId,
-            MetricsQueryRequest query
+            MetricsQueryRequest queryParams
     ) {
         if (!catalogClient.contentExists(contentId)) {
             throw new ContentNotFoundException();
@@ -157,9 +157,9 @@ public class MetricsService {
         List<ConcurrentViewersProjection> projections =
                 concurrentViewersSnapshotRepository.findConcurrentViewersTrend(
                         contentId,
-                        query.from(),
-                        query.to(),
-                        query.granularity().name()
+                        queryParams.from(),
+                        queryParams.to(),
+                        queryParams.granularity().name()
                 );
 
         return projections.stream()
