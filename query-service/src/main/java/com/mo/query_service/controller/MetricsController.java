@@ -1,10 +1,7 @@
 package com.mo.query_service.controller;
 
 import com.mo.query_service.dto.request.MetricsQueryRequest;
-import com.mo.query_service.dto.response.CompletionResponse;
-import com.mo.query_service.dto.response.DropoffResponse;
-import com.mo.query_service.dto.response.SummaryResponse;
-import com.mo.query_service.dto.response.WatchTimeResponse;
+import com.mo.query_service.dto.response.*;
 import com.mo.query_service.service.MetricsService;
 import com.mo.query_service.web.ValidMetricQuery;
 import lombok.RequiredArgsConstructor;
@@ -25,11 +22,14 @@ public class MetricsController {
     @GetMapping("/summary")
     @PreAuthorize("hasRole('ANALYTICS_READ')")
     public ResponseEntity<SummaryResponse> getSummaryByContentId(
-            @PathVariable UUID contentId
+            @PathVariable UUID contentId,
+            @ValidMetricQuery MetricsQueryRequest request
     ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(new SummaryResponse());
+                .body(
+                        metricsService.getSummary(contentId, request)
+                );
     }
 
     @GetMapping("/watch-time")
@@ -68,6 +68,19 @@ public class MetricsController {
                 .status(HttpStatus.OK)
                 .body(
                         metricsService.getDropoff(contentId, request)
+                );
+    }
+
+    @GetMapping("/concurrent")
+    @PreAuthorize("hasRole('ANALYTICS_READ')")
+    public ResponseEntity<List<ConcurrentViewersResponse>> getConcurrentViewers(
+            @PathVariable UUID contentId,
+            @ValidMetricQuery MetricsQueryRequest request
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        metricsService.getConcurrentViewers(contentId, request)
                 );
     }
 }

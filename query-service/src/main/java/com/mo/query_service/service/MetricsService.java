@@ -2,16 +2,10 @@ package com.mo.query_service.service;
 
 import com.mo.query_service.client.CatalogClient;
 import com.mo.query_service.dto.request.MetricsQueryRequest;
-import com.mo.query_service.dto.response.CompletionResponse;
-import com.mo.query_service.dto.response.DropoffResponse;
-import com.mo.query_service.dto.response.WatchTimeResponse;
+import com.mo.query_service.dto.response.*;
 import com.mo.query_service.exception.ContentNotFoundException;
-import com.mo.query_service.projections.CompletionProjection;
-import com.mo.query_service.projections.DropoffProjection;
-import com.mo.query_service.projections.WatchTimeProjection;
-import com.mo.query_service.repository.CompletionMetricsRepository;
-import com.mo.query_service.repository.DropoffHeatmapRepository;
-import com.mo.query_service.repository.WatchTimeMetricsRepository;
+import com.mo.query_service.projections.*;
+import com.mo.query_service.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -29,10 +23,40 @@ public class MetricsService {
     private final WatchTimeMetricsRepository watchTimeMetricsRepository;
     private final CompletionMetricsRepository completionMetricsRepository;
     private final DropoffHeatmapRepository dropoffHeatmapRepository;
+    private final ConcurrentViewersSnapshotRepository concurrentViewersSnapshotRepository;
+    private final MetricsSummaryRepository metricsSummaryRepository;
 
 
-    public void getSummaryByContentId(UUID contentId) {
+    public SummaryResponse getSummary(UUID contentId, MetricsQueryRequest request) {
+        if (!catalogClient.contentExists(contentId)) {
+            throw new ContentNotFoundException();
+        }
 
+        MetricsSummaryProjection projection =
+                metricsSummaryRepository.getSummary(
+                        contentId,
+                        request.from(),
+                        request.to()
+                );
+
+        BigDecimal completionRate =
+                projection.getPlayCount() == 0
+                        ? BigDecimal.ZERO
+                        : BigDecimal.valueOf(projection.getCompleteCount())
+                          .divide(BigDecimal.valueOf(projection.getPlayCount()), 4, RoundingMode.HALF_UP)
+                          .multiply(BigDecimal.valueOf(100));
+
+        return new SummaryResponse(
+                projection.getTotalWatchTimeMs(),
+                projection.getAvgWatchDurationMs(),
+                projection.getUniqueSessions(),
+                projection.getUniqueUsers(),
+                projection.getPlayCount(),
+                projection.getCompleteCount(),
+                completionRate,
+                projection.getPeakViewers(),
+                projection.getAvgViewers()
+        );
     }
 
     public List<WatchTimeResponse> getWatchTime(UUID contentId, MetricsQueryRequest request) {
@@ -118,6 +142,31 @@ public class MetricsService {
                 .map(projection -> new DropoffResponse(
                         projection.getPostionBucket(),
                         projection.getStopCount()
+                ))
+                .toList();
+    }
+
+    public List<ConcurrentViewersResponse> getConcurrentViewers(
+            UUID contentId,
+            MetricsQueryRequest query
+    ) {
+        if (!catalogClient.contentExists(contentId)) {
+            throw new ContentNotFoundException();
+        }
+
+        List<ConcurrentViewersProjection> projections =
+                concurrentViewersSnapshotRepository.findConcurrentViewersTrend(
+                        contentId,
+                        query.from(),
+                        query.to(),
+                        query.granularity().name()
+                );
+
+        return projections.stream()
+                .map(projection -> new ConcurrentViewersResponse(
+                        projection.getBucket(),
+                        projection.getPeakViewers(),
+                        projection.getAvgViewers()
                 ))
                 .toList();
     }
