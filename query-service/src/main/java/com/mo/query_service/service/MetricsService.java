@@ -3,11 +3,14 @@ package com.mo.query_service.service;
 import com.mo.query_service.client.CatalogClient;
 import com.mo.query_service.dto.request.MetricsQueryRequest;
 import com.mo.query_service.dto.response.CompletionResponse;
+import com.mo.query_service.dto.response.DropoffResponse;
 import com.mo.query_service.dto.response.WatchTimeResponse;
 import com.mo.query_service.exception.ContentNotFoundException;
-import com.mo.query_service.projections.CompletionTrendProjection;
-import com.mo.query_service.projections.WatchTimeTrendProjection;
+import com.mo.query_service.projections.CompletionProjection;
+import com.mo.query_service.projections.DropoffProjection;
+import com.mo.query_service.projections.WatchTimeProjection;
 import com.mo.query_service.repository.CompletionMetricsRepository;
+import com.mo.query_service.repository.DropoffHeatmapRepository;
 import com.mo.query_service.repository.WatchTimeMetricsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,7 @@ public class MetricsService {
     private final CatalogClient catalogClient;
     private final WatchTimeMetricsRepository watchTimeMetricsRepository;
     private final CompletionMetricsRepository completionMetricsRepository;
+    private final DropoffHeatmapRepository dropoffHeatmapRepository;
 
 
     public void getSummaryByContentId(UUID contentId) {
@@ -38,9 +42,9 @@ public class MetricsService {
 
         String granularity = request.granularity().toString().toLowerCase();
 
-        List<WatchTimeTrendProjection> projections =
+        List<WatchTimeProjection> projections =
                 watchTimeMetricsRepository
-                        .findWatchTimeTrend(
+                        .findWatchTime(
                             contentId,
                             request.from(),
                             request.to(),
@@ -64,8 +68,8 @@ public class MetricsService {
 
         String granularity = request.granularity().toString().toLowerCase();
 
-        List<CompletionTrendProjection> projections =
-                completionMetricsRepository.findCompletionTrend(
+        List<CompletionProjection> projections =
+                completionMetricsRepository.findCompletion(
                         contentId,
                         request.from(),
                         request.to(),
@@ -94,6 +98,27 @@ public class MetricsService {
                             completionRate
                     );
                 })
+                .toList();
+    }
+
+    public List<DropoffResponse> getDropoff(UUID contentId, MetricsQueryRequest request) {
+        if(!catalogClient.contentExists(contentId)) {
+            throw new ContentNotFoundException();
+        }
+
+        String granularity = request.granularity().toString().toLowerCase();
+
+        List<DropoffProjection> projections =
+                dropoffHeatmapRepository.findDropoff(
+                        contentId,
+                        request.from(),
+                        request.to()
+                );
+        return projections.stream()
+                .map(projection -> new DropoffResponse(
+                        projection.getPostionBucket(),
+                        projection.getStopCount()
+                ))
                 .toList();
     }
 }

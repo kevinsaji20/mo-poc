@@ -2,7 +2,7 @@ package com.mo.query_service.repository;
 
 import com.mo.query_service.entity.CompletionMetrics;
 import com.mo.query_service.entity.CompletionMetricsId;
-import com.mo.query_service.projections.CompletionTrendProjection;
+import com.mo.query_service.projections.CompletionProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -28,7 +28,7 @@ public interface CompletionMetricsRepository
     GROUP BY date_trunc(:granularity, window_start)
     ORDER BY bucket
     """, nativeQuery = true)
-    List<CompletionTrendProjection> findCompletionTrend(
+    List<CompletionProjection> findCompletion(
             @Param("contentId") UUID contentId,
             @Param("from") OffsetDateTime from,
             @Param("to") OffsetDateTime to,

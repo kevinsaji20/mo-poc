@@ -2,7 +2,7 @@ package com.mo.query_service.repository;
 
 import com.mo.query_service.entity.WatchTimeMetrics;
 import com.mo.query_service.entity.WatchTimeMetricsId;
-import com.mo.query_service.projections.WatchTimeTrendProjection;
+import com.mo.query_service.projections.WatchTimeProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -28,7 +28,7 @@ public interface WatchTimeMetricsRepository
             GROUP BY date_trunc(:granularity, window_start)
             ORDER BY bucket
         """, nativeQuery = true)
-    public List<WatchTimeTrendProjection> findWatchTimeTrend(
+    public List<WatchTimeProjection> findWatchTime(
             @Param("contentId") UUID contentId,
             @Param("from") OffsetDateTime from,
             @Param("to") OffsetDateTime to,

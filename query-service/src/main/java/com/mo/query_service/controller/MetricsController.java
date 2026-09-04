@@ -2,10 +2,11 @@ package com.mo.query_service.controller;
 
 import com.mo.query_service.dto.request.MetricsQueryRequest;
 import com.mo.query_service.dto.response.CompletionResponse;
+import com.mo.query_service.dto.response.DropoffResponse;
 import com.mo.query_service.dto.response.SummaryResponse;
 import com.mo.query_service.dto.response.WatchTimeResponse;
 import com.mo.query_service.service.MetricsService;
-import jakarta.validation.Valid;
+import com.mo.query_service.web.ValidMetricQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,7 @@ public class MetricsController {
     @PreAuthorize("hasRole('ANALYTICS_READ')")
     public ResponseEntity<List<WatchTimeResponse>> getWatchTime(
             @PathVariable UUID contentId,
-            @Valid @ModelAttribute MetricsQueryRequest request
+            @ValidMetricQuery MetricsQueryRequest request
     ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -48,7 +49,7 @@ public class MetricsController {
     @PreAuthorize("hasRole('ANALYTICS_READ')")
     public ResponseEntity<List<CompletionResponse>> getCompletion(
             @PathVariable UUID contentId,
-            @Valid @ModelAttribute MetricsQueryRequest request
+            @ValidMetricQuery MetricsQueryRequest request
     ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -57,4 +58,16 @@ public class MetricsController {
                 );
     }
 
+    @GetMapping("/dropoff")
+    @PreAuthorize("hasRole('ANALYTICS_READ')")
+    public ResponseEntity<List<DropoffResponse>> getDropoff(
+            @PathVariable UUID contentId,
+            @ValidMetricQuery MetricsQueryRequest request
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        metricsService.getDropoff(contentId, request)
+                );
+    }
 }
