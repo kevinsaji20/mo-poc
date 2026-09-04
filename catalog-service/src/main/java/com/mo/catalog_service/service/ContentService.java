@@ -33,7 +33,6 @@ public class ContentService {
     private final ContentEventProducer producer;
 
     @Transactional
-    @PreAuthorize("hasRole('CONTENT_ADMIN')")
     public ContentResponse createContent(CreateContentRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UUID createdBy = UUID.fromString(authentication.getName());
@@ -80,7 +79,6 @@ public class ContentService {
     }
 
     @Transactional
-    @PreAuthorize("hasRole('CONTENT_ADMIN')")
     public ContentResponse updateContent(UUID contentId, UpdateContentRequest request) {
         MediaContent content = mediaContentRepository
                 .findById(contentId)
@@ -130,7 +128,6 @@ public class ContentService {
     }
 
     @Transactional
-    @PreAuthorize("hasRole('CONTENT_ADMIN')")
     public void archiveContent(UUID contentId) {
         MediaContent content = mediaContentRepository
                 .findById(contentId)

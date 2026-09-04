@@ -21,6 +21,9 @@ public class SecurityConfig {
     @Value("${security.jwt.public-key}")
     private Resource publicKeyResource;
 
+    @Value("${spring.rest.content-route}")
+    private String contentRoute;
+
     @Bean
     JwtDecoder jwtDecoder() throws Exception {
         return JwtDecoderFactory.create(publicKeyResource);
@@ -38,7 +41,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers(
                                 HttpMethod.GET,
-                                        "/content"
+                                        contentRoute
                                 ).permitAll()
                                 .anyRequest()
                                 .authenticated()

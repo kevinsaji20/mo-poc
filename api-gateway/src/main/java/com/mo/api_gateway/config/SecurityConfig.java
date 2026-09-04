@@ -27,6 +27,12 @@ public class SecurityConfig {
     @Value("${security.jwt.public-key}")
     private Resource publicKey;
 
+    @Value("${spring.rest.admin-route}")
+    private String adminRoute;
+
+    @Value("${spring.rest.health-route}")
+    private String healthRoute;
+
     @Bean
     public ReactiveJwtDecoder reactiveJwtDecoder() throws Exception {
         return ReactiveJwtDecoderFactory.create(publicKey);
@@ -51,8 +57,8 @@ public class SecurityConfig {
                 .authorizeExchange(exchange ->
                         exchange
                                 .pathMatchers(
-                                        "/health",
-                                        "/auth/**"
+                                        healthRoute,
+                                        adminRoute + "/**"
                                 )
                                 .permitAll()
                                 .anyExchange()

@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,7 @@ public class ContentController {
     private final ContentService contentService;
 
     @PostMapping
+    @PreAuthorize("hasRole('CONTENT_ADMIN')")
     public ResponseEntity<ContentResponse> createContent(
             @Valid @RequestBody CreateContentRequest request
     ) {
@@ -31,6 +33,7 @@ public class ContentController {
     }
 
     @PostMapping("/{contentId}")
+    @PreAuthorize("hasRole('CONTENT_ADMIN')")
     public ResponseEntity<ContentResponse> updateContent(
             @PathVariable UUID contentId,
             @Valid @RequestBody UpdateContentRequest request
@@ -41,6 +44,7 @@ public class ContentController {
     }
 
     @DeleteMapping("/{contentId}")
+    @PreAuthorize("hasRole('CONTENT_ADMIN')")
     public ResponseEntity<Void> deleteContent(
             @PathVariable UUID contentId
     ) {

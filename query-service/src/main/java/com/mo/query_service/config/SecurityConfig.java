@@ -1,4 +1,4 @@
-package com.mo.ingestion_service.config;
+package com.mo.query_service.config;
 
 import com.mo.common.security.jwt.JwtAuthenticationConverter;
 import com.mo.common.security.jwt.JwtDecoderFactory;
@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,9 +20,6 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
     @Value("${security.jwt.public-key}")
     private Resource publicKeyResource;
-
-    @Value("${spring.rest.ingestion-route}")
-    private String ingestionRoute;
 
     @Bean
     JwtDecoder jwtDecoder() throws Exception {
@@ -38,8 +36,12 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers(ingestionRoute)
-                                .permitAll()
+                        auth.requestMatchers(
+                                        HttpMethod.GET,
+                                        "/metrics",
+                                        "/trends",
+                                        "/admin"
+                                ).permitAll()
                                 .anyRequest()
                                 .authenticated()
                 )
