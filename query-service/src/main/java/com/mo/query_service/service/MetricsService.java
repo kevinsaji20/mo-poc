@@ -1,5 +1,9 @@
 package com.mo.query_service.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.mo.query_service.cache.CacheTTLStrategy;
+import com.mo.query_service.cache.MetricsCacheKeys;
+import com.mo.query_service.cache.MetricsCacheService;
 import com.mo.query_service.client.CatalogClient;
 import com.mo.query_service.dto.request.MetricsQueryRequest;
 import com.mo.query_service.dto.response.*;
@@ -26,12 +30,24 @@ public class MetricsService {
     private final ConcurrentViewersSnapshotRepository concurrentViewersSnapshotRepository;
     private final MetricsSummaryRepository metricsSummaryRepository;
 
+    private final MetricsCacheService metricsCacheService;
+    private final CacheTTLStrategy cacheTTLStrategy;
+
 
     public SummaryResponse getSummary(UUID contentId, MetricsQueryRequest queryParams) {
         if (!catalogClient.contentExists(contentId)) {
             throw new ContentNotFoundException();
         }
 
+        // 1 Try Redis
+        String key = MetricsCacheKeys.summary(contentId, queryParams);
+
+        SummaryResponse cached = metricsCacheService.get(key, SummaryResponse.class);
+        if (cached != null) {
+            return cached;
+        }
+
+        // 2 Cache miss -> PostgreSQL
         MetricsSummaryProjection projection =
                 metricsSummaryRepository.getSummary(
                         contentId,
@@ -46,7 +62,7 @@ public class MetricsService {
                           .divide(BigDecimal.valueOf(projection.getPlayCount()), 4, RoundingMode.HALF_UP)
                           .multiply(BigDecimal.valueOf(100));
 
-        return new SummaryResponse(
+        SummaryResponse response = new SummaryResponse(
                 projection.getTotalWatchTimeMs(),
                 projection.getAvgWatchDurationMs(),
                 projection.getUniqueSessions(),
@@ -57,25 +73,39 @@ public class MetricsService {
                 projection.getPeakViewers(),
                 projection.getAvgViewers()
         );
+
+        // 3 Store in Redis
+        metricsCacheService.put(key, response, cacheTTLStrategy.contentMetricsTtl(queryParams.to()));
+
+        return response;
     }
 
     public List<WatchTimeResponse> getWatchTime(UUID contentId, MetricsQueryRequest queryParams) {
         if(!catalogClient.contentExists(contentId)) {
             throw new ContentNotFoundException();
         }
+        // 1 Try Redis
+        String key = MetricsCacheKeys.watchTime(contentId, queryParams);
+        List<WatchTimeResponse> cached =
+                metricsCacheService.get(
+                        key,
+                        new TypeReference<List<WatchTimeResponse>>() {}
+                );
+        if (cached != null) {
+            return cached;
+        }
 
-        String granularity = queryParams.granularity().toString().toLowerCase();
-
+        // 2 Cache miss -> PostgreSQL
         List<WatchTimeProjection> projections =
                 watchTimeMetricsRepository
                         .findWatchTime(
-                            contentId,
+                                contentId,
                                 queryParams.from(),
                                 queryParams.to(),
-                            granularity
+                                queryParams.granularity().name()
                         );
 
-        return projections.stream()
+        List<WatchTimeResponse>  response = projections.stream()
                 .map(projection -> new WatchTimeResponse(
                         projection.getBucket(),
                         projection.getTotalWatchTimeMs(),
@@ -83,6 +113,11 @@ public class MetricsService {
                         projection.getUniqueUsers()
                 ))
                 .toList();
+
+        // 3 Store in Redis
+        metricsCacheService.put(key, response, cacheTTLStrategy.contentMetricsTtl(queryParams.to()));
+
+        return response;
     }
 
     public List<CompletionResponse> getCompletion(UUID contentId, MetricsQueryRequest queryParams) {
@@ -90,17 +125,27 @@ public class MetricsService {
             throw new ContentNotFoundException();
         }
 
-        String granularity = queryParams.granularity().toString().toLowerCase();
+        // 1 Try Redis
+        String key = MetricsCacheKeys.completion(contentId, queryParams);
+        List<CompletionResponse> cached =
+                metricsCacheService.get(
+                        key,
+                        new TypeReference<List<CompletionResponse>>() {}
+                );
+        if (cached != null) {
+            return cached;
+        }
 
+        // 2 Cache miss -> PostgreSQL
         List<CompletionProjection> projections =
                 completionMetricsRepository.findCompletion(
                         contentId,
                         queryParams.from(),
                         queryParams.to(),
-                        granularity
+                        queryParams.granularity().name()
                 );
 
-        return projections.stream()
+        List<CompletionResponse> response = projections.stream()
                 .map(projection -> {
                     Long playCount = projection.getPlayCount();
                     Long completeCount = projection.getCompleteCount();
@@ -123,27 +168,46 @@ public class MetricsService {
                     );
                 })
                 .toList();
+
+        // 3 Store in Redis
+        metricsCacheService.put(key, response, cacheTTLStrategy.contentMetricsTtl(queryParams.to()));
+
+        return response;
     }
 
     public List<DropoffResponse> getDropoff(UUID contentId, MetricsQueryRequest queryParams) {
         if(!catalogClient.contentExists(contentId)) {
             throw new ContentNotFoundException();
         }
+        // 1 Try Redis
+        String key = MetricsCacheKeys.dropoff(contentId, queryParams);
+        List<DropoffResponse> cached =
+                metricsCacheService.get(
+                        key,
+                        new TypeReference<List<DropoffResponse>>() {}
+                );
+        if (cached != null) {
+            return cached;
+        }
 
-        String granularity = queryParams.granularity().toString().toLowerCase();
-
+        // 2 Cache miss -> PostgreSQL
         List<DropoffProjection> projections =
                 dropoffHeatmapRepository.findDropoff(
                         contentId,
                         queryParams.from(),
                         queryParams.to()
                 );
-        return projections.stream()
+        List<DropoffResponse> response = projections.stream()
                 .map(projection -> new DropoffResponse(
                         projection.getPostionBucket(),
                         projection.getStopCount()
                 ))
                 .toList();
+
+        // 3 Store in Redis
+        metricsCacheService.put(key, response, cacheTTLStrategy.contentMetricsTtl(queryParams.to()));
+
+        return response;
     }
 
     public List<ConcurrentViewersResponse> getConcurrentViewers(
@@ -153,6 +217,18 @@ public class MetricsService {
         if (!catalogClient.contentExists(contentId)) {
             throw new ContentNotFoundException();
         }
+        // 1 Try Redis
+        String key = MetricsCacheKeys.concurrent(contentId, queryParams);
+        List<ConcurrentViewersResponse> cached =
+                metricsCacheService.get(
+                        key,
+                        new TypeReference<List<ConcurrentViewersResponse>>() {}
+                );
+        if (cached != null) {
+            return cached;
+        }
+
+        // 2 Cache miss -> PostgreSQL
 
         List<ConcurrentViewersProjection> projections =
                 concurrentViewersSnapshotRepository.findConcurrentViewersTrend(
@@ -162,12 +238,17 @@ public class MetricsService {
                         queryParams.granularity().name()
                 );
 
-        return projections.stream()
+        List<ConcurrentViewersResponse> response = projections.stream()
                 .map(projection -> new ConcurrentViewersResponse(
                         projection.getBucket(),
                         projection.getPeakViewers(),
                         projection.getAvgViewers()
                 ))
                 .toList();
+
+        // 3 Store in Redis
+        metricsCacheService.put(key, response, cacheTTLStrategy.contentMetricsTtl(queryParams.to()));
+
+        return response;
     }
 }
