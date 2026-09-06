@@ -2,9 +2,11 @@ package com.mo.ingestion_service.mapper;
 
 import com.mo.common.kafka.events.IngestionEvent;
 import com.mo.ingestion_service.dto.request.EngagementIngestionRequest;
+import org.springframework.stereotype.Component;
 
+@Component
 public class IngestionEventMapper {
-    public static IngestionEvent toEvent(EngagementIngestionRequest request) {
+    public IngestionEvent toEvent(EngagementIngestionRequest request) {
         return new IngestionEvent(
                 request.eventId(),
                 request.contentId(),

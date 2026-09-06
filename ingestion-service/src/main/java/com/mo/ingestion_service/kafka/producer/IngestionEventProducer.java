@@ -20,7 +20,7 @@ public class IngestionEventProducer {
     private final IngestionEventMapper ingestionEventMapper;
 
     public void publishRawEngagementEvents(EngagementIngestionRequest ingestionEvent) {
-        IngestionEvent event = IngestionEventMapper.toEvent(ingestionEvent);
+        IngestionEvent event = ingestionEventMapper.toEvent(ingestionEvent);
         EventEnvelope<IngestionEvent> envelope = new EventEnvelope<>(
                 UUID.randomUUID(),
                 EventType.RAW_ENGAGEMENT_EVENTS,

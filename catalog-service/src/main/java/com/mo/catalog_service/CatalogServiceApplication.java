@@ -7,11 +7,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 		scanBasePackages = {
 				"com.mo.catalog_service",
 				"com.mo.common.kafka",
-				"com.mo.common.secuirty"
+				"com.mo.common.secuirty",
+				"com.mo.common.web"
 		}
 )
 public class CatalogServiceApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(CatalogServiceApplication.class, args);
 	}

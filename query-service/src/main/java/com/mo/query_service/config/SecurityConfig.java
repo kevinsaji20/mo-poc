@@ -21,6 +21,15 @@ public class SecurityConfig {
     @Value("${security.jwt.public-key}")
     private Resource publicKeyResource;
 
+    @Value("${spring.rest.metrics-route}")
+    private String metricsRoute;
+
+    @Value("${spring.rest.trends-route}")
+    private String trendsRoute;
+
+    @Value("${spring.rest.admin-route}")
+    private String adminRoute;
+
     @Bean
     JwtDecoder jwtDecoder() throws Exception {
         return JwtDecoderFactory.create(publicKeyResource);
@@ -38,9 +47,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers(
                                         HttpMethod.GET,
-                                        "/metrics",
-                                        "/trends",
-                                        "/admin"
+                                        metricsRoute,
+                                        trendsRoute,
+                                        adminRoute
                                 ).permitAll()
                                 .anyRequest()
                                 .authenticated()

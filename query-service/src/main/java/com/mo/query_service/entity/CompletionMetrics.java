@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Builder;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 @Entity
@@ -30,7 +31,7 @@ public class CompletionMetrics {
     private Integer completeCount;
 
     @Column(name = "completion_rate", nullable = false, precision = 5, scale = 2)
-    private double completionRate;
+    private BigDecimal completionRate;
 
     @Column(name = "computed_at", nullable = false)
     private OffsetDateTime computedAt;

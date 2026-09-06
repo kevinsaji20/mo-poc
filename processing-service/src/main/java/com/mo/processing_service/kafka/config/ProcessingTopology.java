@@ -29,7 +29,7 @@ public class ProcessingTopology {
     private final ConcurrentViewerTopology concurrentViewerTopology;
 
     @Bean
-    public KStream<String, EventEnvelope<IngestionEvent>> stream (
+    public KStream<String, EventEnvelope<IngestionEvent>> stream(
         StreamsBuilder builder
     ) {
         Serde<EventEnvelope<IngestionEvent>> eventEnvelopeSerde =
@@ -51,7 +51,7 @@ public class ProcessingTopology {
         watchTimeTopology.build(events);
         completionRateTopology.build(events);
         dropoffHeatmapTopology.build(events);
-        completionRateTopology.build(events);
+        concurrentViewerTopology.build(events);
 
         return events;
     }

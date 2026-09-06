@@ -48,30 +48,10 @@ public class MetricsService {
         }
 
         // 2 Cache miss -> PostgreSQL
-        MetricsSummaryProjection projection =
-                metricsSummaryRepository.getSummary(
-                        contentId,
-                        queryParams.from(),
-                        queryParams.to()
-                );
-
-        BigDecimal completionRate =
-                projection.getPlayCount() == 0
-                        ? BigDecimal.ZERO
-                        : BigDecimal.valueOf(projection.getCompleteCount())
-                          .divide(BigDecimal.valueOf(projection.getPlayCount()), 4, RoundingMode.HALF_UP)
-                          .multiply(BigDecimal.valueOf(100));
-
-        SummaryResponse response = new SummaryResponse(
-                projection.getTotalWatchTimeMs(),
-                projection.getAvgWatchDurationMs(),
-                projection.getUniqueSessions(),
-                projection.getUniqueUsers(),
-                projection.getPlayCount(),
-                projection.getCompleteCount(),
-                completionRate,
-                projection.getPeakViewers(),
-                projection.getAvgViewers()
+        SummaryResponse response = metricsSummaryRepository.getSummary(
+                contentId,
+                queryParams.from(),
+                queryParams.to()
         );
 
         // 3 Store in Redis

@@ -47,7 +47,7 @@ public class TrendsController {
                 );
     }
 
-    @GetMapping("/genre/${genre}")
+    @GetMapping("/genre/{genre}")
     @PreAuthorize("hasRole('ANALYTICS_READ'")
     public ResponseEntity<List<GenreTrendResponse>> getGenreTrend(
             @PathVariable String genre,
