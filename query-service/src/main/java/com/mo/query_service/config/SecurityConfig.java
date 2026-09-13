@@ -30,6 +30,9 @@ public class SecurityConfig {
     @Value("${spring.rest.admin-route}")
     private String adminRoute;
 
+    @Value("${spring.rest.health-route}")
+    private String healthRoute;
+
     @Bean
     JwtDecoder jwtDecoder() throws Exception {
         return JwtDecoderFactory.create(publicKeyResource);
@@ -49,7 +52,8 @@ public class SecurityConfig {
                                         HttpMethod.GET,
                                         metricsRoute,
                                         trendsRoute,
-                                        adminRoute
+                                        adminRoute,
+                                        healthRoute
                                 ).permitAll()
                                 .anyRequest()
                                 .authenticated()

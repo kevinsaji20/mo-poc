@@ -5,9 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication(
 		scanBasePackages = {
-				"com.mo.api-gateway",
-				"com.mo.common.security",
-				"com.mo.common.web"
+				"com.mo.api_gateway",
+				"com.mo.common.security"
 		}
 )
 public class ApiGatewayApplication {

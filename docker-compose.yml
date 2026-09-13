@@ -3,15 +3,13 @@ services:
       image: postgres:16-alpine
       container_name: postgres_mo_poc
       restart: always
-      env_file:
-        - .env
       environment:
         POSTGRES_USER: $DB_USERNAME
         POSTGRES_PASSWORD: $DB_PASSWORD
         TZ: 'Asia/Kolkata'
         PGTZ: 'Asia/Kolkata'
       ports:
-        - "5433:5432"
+        - "${POSTGRES_HOST_PORT}:${DB_PORT}"
       volumes:
         - postgres:/data/postgres
         - ./db-init:/docker-entrypoint-initdb.d
@@ -25,7 +23,7 @@ services:
       networks:
         - mo-poc-network
       ports:
-        - "6379:6379"
+        - "${REDIS_PORT}:${REDIS_PORT}"
       volumes:
         - redis_data:/data
 
@@ -33,7 +31,7 @@ services:
       image: confluentinc/cp-kafka:7.6.0
       container_name: mo_poc_kafka
       ports:
-        - "9092:9092"
+        - "${KAFKA_PORT}:${KAFKA_PORT}"
       environment:
           # KRaft settings
           KAFKA_NODE_ID: 1
@@ -42,7 +40,7 @@ services:
 
           # Listeners
           KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
-          KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://localhost:9092"
+          KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://mo_poc_kafka:9092"
           KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT"
           KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
 
@@ -61,6 +59,105 @@ services:
       restart: unless-stopped
       networks:
         - mo-poc-network
+
+  catalog-service:
+      build:
+        context: .
+        dockerfile: catalog-service/Dockerfile
+        args:
+          APP_VERSION: $CATALOG_SERVICE_VERSION
+          APP_PORT: $CATALOG_SERVICE_PORT
+      image: "${CATALOG_IMAGE}:${CATALOG_SERVICE_VERSION}"
+      container_name: mo_poc_catalog_service
+      ports:
+        - "${CATALOG_SERVICE_PORT}:${CATALOG_SERVICE_PORT}"
+      env_file:
+        - .env
+      depends_on:
+        - postgres
+        - kafka
+        - redis
+      networks:
+        - mo-poc-network
+
+  ingestion-service:
+      build:
+        context: .
+        dockerfile: ingestion-service/Dockerfile
+        args:
+          APP_VERSION: $INGESTION_SERVICE_VERSION
+          APP_PORT: $INGESTION_SERVICE_PORT
+      image: "${INGESTION_IMAGE}:${INGESTION_SERVICE_VERSION}"
+      container_name: mo_poc_ingestion_service
+      ports:
+        - "${INGESTION_SERVICE_PORT}:${INGESTION_SERVICE_PORT}"
+      env_file:
+        - .env
+      depends_on:
+        - kafka
+        - redis
+      networks:
+        - mo-poc-network
+
+  processing-service:
+      build:
+        context: .
+        dockerfile: processing-service/Dockerfile
+        args:
+          APP_VERSION: $PROCESSING_SERVICE_VERSION
+          APP_PORT: $PROCESSING_SERVICE_PORT
+      image: "${PROCESSING_IMAGE}:${PROCESSING_SERVICE_VERSION}"
+      container_name: mo_poc_processing_service
+      ports:
+        - "${PROCESSING_SERVICE_PORT}:${PROCESSING_SERVICE_PORT}"
+      env_file:
+        - .env
+      depends_on:
+        - postgres
+        - kafka
+      networks:
+        - mo-poc-network
+
+  query-service:
+      build:
+        context: .
+        dockerfile: query-service/Dockerfile
+        args:
+          APP_VERSION: $QUERY_SERVICE_VERSION
+          APP_PORT: $QUERY_SERVICE_PORT
+      image: "${QUERY_IMAGE}:${QUERY_SERVICE_VERSION}"
+      container_name: mo_poc_query_service
+      ports:
+        - "${QUERY_SERVICE_PORT}:${QUERY_SERVICE_PORT}"
+      env_file:
+        - .env
+      depends_on:
+        - postgres
+        - kafka
+        - redis
+      networks:
+        - mo-poc-network
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+      args:
+        APP_VERSION: $API_GATEWAY_VERSION
+        APP_PORT: $API_GATEWAY_PORT
+    image: "${GATEWAY_IMAGE}:${API_GATEWAY_VERSION}"
+    container_name: mo_poc_api_gateway
+    ports:
+      - "${API_GATEWAY_PORT}:${API_GATEWAY_PORT}"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - catalog-service
+      - ingestion-service
+      - query-service
+    networks:
+      - mo-poc-network
 
 volumes:
   postgres:

@@ -27,8 +27,8 @@ public class SecurityConfig {
     @Value("${security.jwt.public-key}")
     private Resource publicKey;
 
-    @Value("${spring.rest.admin-route}")
-    private String adminRoute;
+    @Value("${spring.rest.auth-route}")
+    private String authRoute;
 
     @Value("${spring.rest.health-route}")
     private String healthRoute;
@@ -54,11 +54,12 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+                .logout(ServerHttpSecurity.LogoutSpec::disable)
                 .authorizeExchange(exchange ->
                         exchange
                                 .pathMatchers(
                                         healthRoute,
-                                        adminRoute + "/**"
+                                        authRoute + "/**"
                                 )
                                 .permitAll()
                                 .anyExchange()

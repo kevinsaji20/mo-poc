@@ -24,6 +24,9 @@ public class SecurityConfig {
     @Value("${spring.rest.content-route}")
     private String contentRoute;
 
+    @Value("${spring.rest.health-route}")
+    private String healthRoute;
+
     @Bean
     JwtDecoder jwtDecoder() throws Exception {
         return JwtDecoderFactory.create(publicKeyResource);
@@ -40,8 +43,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers(
-                                HttpMethod.GET,
-                                        contentRoute
+                                HttpMethod.GET, contentRoute, healthRoute
                                 ).permitAll()
                                 .anyRequest()
                                 .authenticated()

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -23,6 +24,9 @@ public class SecurityConfig {
     @Value("${spring.rest.ingestion-route}")
     private String ingestionRoute;
 
+    @Value("${spring.rest.health-route}")
+    private String healthRoute;
+
     @Bean
     JwtDecoder jwtDecoder() throws Exception {
         return JwtDecoderFactory.create(publicKeyResource);
@@ -38,7 +42,7 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers(ingestionRoute)
+                        auth.requestMatchers(HttpMethod.GET, ingestionRoute, healthRoute)
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated()
