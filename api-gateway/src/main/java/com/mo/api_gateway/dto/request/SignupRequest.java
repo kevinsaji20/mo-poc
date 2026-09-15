@@ -3,6 +3,7 @@ package com.mo.api_gateway.dto.request;
 import com.mo.api_gateway.enums.AuthProviderType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record SignupRequest(
@@ -20,7 +21,7 @@ public record SignupRequest(
         @Size(min=8)
         String password,
 
-        @NotBlank(message = "AuthProviderType is required")
+        @NotNull(message = "AuthProviderType is required")
         AuthProviderType provider
 ) {
 }

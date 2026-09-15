@@ -37,5 +37,6 @@ public class Role {
     private OffsetDateTime updatedAt;
 
     @OneToMany(mappedBy = "role")
+    @Builder.Default
     private Set<UserRoles> userRoles = new HashSet<>();
 }

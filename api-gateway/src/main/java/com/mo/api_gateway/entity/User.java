@@ -42,6 +42,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private UserStatus status = UserStatus.ACTIVE;
 
     @Column(name = "email_verified", nullable = false)
@@ -79,6 +80,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private AuthProviderType provider = AuthProviderType.LOCAL;
 
     @Column(name = "provider_id")
@@ -92,5 +94,6 @@ public class User {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+    @Builder.Default
     private Set<UserRoles> userRoles = new HashSet<>();
 }
