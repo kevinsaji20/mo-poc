@@ -11,7 +11,7 @@ public class SecurityConfigTest {
     @Test
     void passwordEncoder_shouldBeBCrypt_withConfiguredStrength() {
         SecurityConfig cfg = new SecurityConfig();
-        ReflectionTestUtils.setField(cfg, "bcryptStrength", 8);
+        ReflectionTestUtils.setField(cfg, "bcryptStrength", 12);
 
         var encoder = cfg.passwordEncoder();
 
