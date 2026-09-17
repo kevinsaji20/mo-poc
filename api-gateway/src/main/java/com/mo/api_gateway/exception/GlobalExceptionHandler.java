@@ -3,16 +3,22 @@ package com.mo.api_gateway.exception;
 import com.mo.common.web.enums.ErrorCode;
 import com.mo.common.web.exception.BaseException;
 import com.mo.common.web.response.ErrorResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.support.WebExchangeBindException;
+import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
 
 import java.time.OffsetDateTime;
+import java.util.Map;
 
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -46,6 +52,9 @@ public class GlobalExceptionHandler {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .orElse("Validation failed");
 
+        // Log validation failures
+        log.warn("Validation failed: {}", message);
+
         ErrorResponse response = ErrorResponse.builder()
                 .success(false)
                 .message(message)
@@ -58,10 +67,32 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler({
+            ServerWebInputException.class,
+            HttpMessageNotReadableException.class
+    })
+    public Mono<ResponseEntity<Object>> handleBadRequest(Exception ex) {
+
+        String message = ex.getMessage() != null
+                ? ex.getMessage()
+                : "Invalid request";
+
+        // Log bad request details
+        log.warn("Bad request: {}", message);
+
+        return Mono.just(
+                ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("error", message))
+        );
+    }
+
     @ExceptionHandler(Exception.class)
     public Mono<ResponseEntity<ErrorResponse>> handleException(
             Exception exception
     ) {
+        // Log unexpected exceptions for diagnostics
+        log.error("Unhandled exception caught in GlobalExceptionHandler", exception);
 
         ErrorResponse response = ErrorResponse.builder()
                 .success(false)

@@ -5,7 +5,9 @@ import com.mo.api_gateway.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -41,7 +43,8 @@ public class User {
     private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(nullable = false, columnDefinition = "userStatusType")
     @Builder.Default
     private UserStatus status = UserStatus.ACTIVE;
 
@@ -79,7 +82,8 @@ public class User {
     private OffsetDateTime deletedAt;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(nullable = false, columnDefinition = "authProviderType")
     @Builder.Default
     private AuthProviderType provider = AuthProviderType.LOCAL;
 

@@ -14,12 +14,14 @@ public class CookieUtil {
     @Value("${security.refresh-token-expiration}")
     private long refreshTokenExpiration;
 
+    @Value("${spring.webflux.base-path}")
+    private String basePath;
 
     private ResponseCookie createRefreshTokenCookie(String token) {
         return ResponseCookie.from("refresh_token", token)
                 .httpOnly(true)
                 .secure(true)
-                .path("/auth/refresh")
+                .path(basePath + "/auth/refresh")
                 .sameSite("Strict")
                 .maxAge(Duration.ofSeconds(refreshTokenExpiration))
                 .build();

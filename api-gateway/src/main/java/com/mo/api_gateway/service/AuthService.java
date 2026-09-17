@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -72,7 +73,7 @@ public class AuthService {
         userRepository.save(user);
 
         Role role = roleRepository
-                .findByRole(RoleType.ANALYTICS_READ)
+                .findByRole(RoleType.ANALYTICS_READ.name())
                 .orElseThrow(() -> new IllegalStateException("Internal Server Error"));
 
         UserRoles assignment = new UserRoles();
@@ -119,7 +120,7 @@ public class AuthService {
         String refreshToken = refreshTokenUtil.generateRefreshToken();
         RefreshTokens entity = new RefreshTokens();
         entity.setUser(user);
-        entity.setTokenHash(passwordUtil.hashPassword(refreshToken));
+        entity.setTokenHash(refreshToken);
         entity.setTokenId(tokenId);
         entity.setDeviceId(metadata.deviceId());
         entity.setDeviceName(metadata.deviceName());
@@ -185,7 +186,7 @@ public class AuthService {
                 .findByTokenIdAndIsRevokedFalse(tokenId)
                 .orElseThrow(() -> new RuntimeException("Invalid Refresh token"));
 
-        if(!passwordUtil.verifyPassword(secret, token.getTokenHash())) {
+        if(!secret.equals(token.getTokenHash())) {
             throw new RuntimeException("Invalid Refresh token");
         }
 

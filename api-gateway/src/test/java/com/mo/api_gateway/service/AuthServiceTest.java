@@ -90,7 +90,7 @@ public class AuthServiceTest {
         Role role = new Role();
         role.setRole(RoleType.ANALYTICS_READ.name());
 
-        when(roleRepository.findByRole(RoleType.ANALYTICS_READ)).thenReturn(Optional.of(role));
+        when(roleRepository.findByRole(RoleType.ANALYTICS_READ.name())).thenReturn(Optional.of(role));
 
         SignupResponse response = authService.signup(request);
 
@@ -191,7 +191,7 @@ public class AuthServiceTest {
         when(userRepository.existsByEmail(request.email())).thenReturn(false);
         when(userRepository.existsByUsername(request.username())).thenReturn(false);
         when(passwordUtil.hashPassword(request.password())).thenReturn("hashed-password");
-        when(roleRepository.findByRole(RoleType.ANALYTICS_READ)).thenReturn(Optional.empty());
+        when(roleRepository.findByRole(RoleType.ANALYTICS_READ.name())).thenReturn(Optional.empty());
 
         IllegalStateException exception = assertThrows(
                 IllegalStateException.class,
