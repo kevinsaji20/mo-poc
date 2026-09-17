@@ -1,0 +1,5 @@
+$kind: http-request
+method: GET
+url: '{{catalogBaseUrl}}/content/genres'
+order: 6000
+description: "Get all available content genres."

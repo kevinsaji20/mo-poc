@@ -15,6 +15,7 @@ target/
 
 ### IntelliJ IDEA ###
 .idea
+.postman
 *.iws
 *.iml
 *.ipr

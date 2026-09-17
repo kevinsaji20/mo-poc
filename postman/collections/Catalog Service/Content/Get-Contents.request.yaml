@@ -1,0 +1,15 @@
+$kind: http-request
+method: GET
+url: '{{catalogBaseUrl}}/content'
+order: 1000
+description: "Get all content items. Supports optional filtering by genre, contentType, and contentStatus."
+queryParams:
+  - key: genre
+    value: ''
+    disabled: true
+  - key: contentType
+    value: ''
+    disabled: true
+  - key: contentStatus
+    value: ''
+    disabled: true

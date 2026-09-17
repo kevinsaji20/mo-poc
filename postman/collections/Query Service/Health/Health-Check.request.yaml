@@ -1,0 +1,5 @@
+$kind: http-request
+method: GET
+url: '{{queryBaseUrl}}/health'
+order: 1000
+description: "Check the health status of the Query Service."

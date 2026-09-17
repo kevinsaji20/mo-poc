@@ -1,0 +1,8 @@
+$kind: http-request
+method: GET
+url: '{{queryBaseUrl}}/trends/top-content'
+order: 1000
+description: "Get top performing content across the platform. Requires ANALYTICS_READ role."
+headers:
+  - key: Authorization
+    value: 'Bearer {{accessToken}}'

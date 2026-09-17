@@ -1,0 +1,25 @@
+$kind: http-request
+method: POST
+url: '{{ingestionBaseUrl}}/events'
+order: 1000
+description: "Submit a single engagement event. Requires EVENT_INGEST role. eventType: PLAY|PAUSE|SEEK|STOP|COMPLETE. deviceType: MOBILE|TABLET|DESKTOP|SMART_TV. region: ISO-3166 alpha-2 code (e.g. IN, US)."
+headers:
+  - key: Authorization
+    value: 'Bearer {{accessToken}}'
+body:
+  type: json
+  content: |-
+    {
+      "eventId": "550e8400-e29b-41d4-a716-446655440000",
+      "contentId": "550e8400-e29b-41d4-a716-446655440001",
+      "userId": "550e8400-e29b-41d4-a716-446655440002",
+      "eventType": "PLAY",
+      "playbackPositionMs": 0,
+      "totalDurationMs": 3600000,
+      "eventTimeStamp": "2024-01-15T10:30:00+05:30",
+      "sessionId": "550e8400-e29b-41d4-a716-446655440003",
+      "deviceType": "DESKTOP",
+      "region": "IN",
+      "seekFromPosition": null,
+      "seekToPosition": null
+    }

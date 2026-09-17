@@ -1,0 +1,18 @@
+$kind: http-request
+method: GET
+url: '{{queryBaseUrl}}/metrics/{{contentId}}/watch-time'
+order: 2000
+description: "Get watch time metrics for a content item over time. Requires ANALYTICS_READ role."
+headers:
+  - key: Authorization
+    value: 'Bearer {{accessToken}}'
+queryParams:
+  - key: from
+    value: '2024-01-01T00:00:00Z'
+    disabled: true
+  - key: to
+    value: '2024-01-31T23:59:59Z'
+    disabled: true
+  - key: granularity
+    value: DAY
+    disabled: true

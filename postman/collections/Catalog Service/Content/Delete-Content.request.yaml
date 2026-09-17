@@ -1,0 +1,8 @@
+$kind: http-request
+method: DELETE
+url: '{{catalogBaseUrl}}/content/{{contentId}}'
+order: 5000
+description: "Archive (soft-delete) content by ID. Requires CONTENT_ADMIN role."
+headers:
+  - key: Authorization
+    value: 'Bearer {{accessToken}}'

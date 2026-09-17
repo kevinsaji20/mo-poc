@@ -1,0 +1,25 @@
+$kind: http-request
+method: POST
+url: '{{catalogBaseUrl}}/content/{{contentId}}'
+order: 4000
+description: "Update existing content. Requires CONTENT_ADMIN role. status: DRAFT|PUBLISHED|ARCHIVED"
+headers:
+  - key: Authorization
+    value: 'Bearer {{accessToken}}'
+body:
+  type: json
+  content: |-
+    {
+      "title": "Updated Video Title",
+      "description": "Updated description",
+      "contentType": "VIDEO",
+      "genre": "ENTERTAINMENT",
+      "language": "en",
+      "durationSeconds": 3600,
+      "thumbnailUrl": "https://example.com/thumbnail.jpg",
+      "streamUrl": "https://example.com/stream.m3u8",
+      "tags": ["updated", "video"],
+      "releaseDate": "2024-01-15",
+      "channelName": "Sample Channel",
+      "status": "PUBLISHED"
+    }

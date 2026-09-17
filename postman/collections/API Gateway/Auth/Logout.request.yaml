@@ -1,0 +1,15 @@
+$kind: http-request
+scripts:
+  - type: afterResponse
+    code: "if (pm.response.code === 204) {\r
+
+      \    pm.environment.set(\"accessToken\", \"\");\r
+
+      }"
+    language: text/javascript
+order: 4000
+method: POST
+url: "{{gatewayBaseUrl}}/auth/logout"
+description: Logout the current user. Requires a valid Bearer token.
+headers:
+  Authorization: Bearer {{accessToken}}

@@ -1,0 +1,18 @@
+$kind: http-request
+method: GET
+url: '{{queryBaseUrl}}/metrics/{{contentId}}/summary'
+order: 1000
+description: "Get summary metrics for a content item. Requires ANALYTICS_READ role."
+headers:
+  - key: Authorization
+    value: 'Bearer {{accessToken}}'
+queryParams:
+  - key: from
+    value: '2024-01-01T00:00:00Z'
+    disabled: true
+  - key: to
+    value: '2024-01-31T23:59:59Z'
+    disabled: true
+  - key: granularity
+    value: DAY
+    disabled: true

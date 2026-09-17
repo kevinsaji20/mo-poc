@@ -1,0 +1,8 @@
+$kind: http-request
+method: GET
+url: '{{queryBaseUrl}}/trends/genre/{{genre}}'
+order: 3000
+description: "Get trend data for a specific genre. genre: ENTERTAINMENT|EDUCATION|NEWS|SPORTS|DOCUMENTARY. Requires ANALYTICS_READ role."
+headers:
+  - key: Authorization
+    value: 'Bearer {{accessToken}}'

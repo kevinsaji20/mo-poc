@@ -1,0 +1,12 @@
+$kind: http-request
+method: GET
+url: '{{queryBaseUrl}}/admin/metrics/content-comparison?contentIds={{contentId}}'
+order: 2000
+description: "Compare metrics across multiple content items. Pass multiple contentIds as query params. Requires ANALYTICS_ADMIN role."
+headers:
+  - key: Authorization
+    value: 'Bearer {{accessToken}}'
+queryParams:
+  - key: contentIds
+    value: '{{contentId}}'
+    description: "Comma-separated list of content UUIDs to compare"
