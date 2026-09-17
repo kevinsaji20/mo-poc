@@ -1,15 +1,19 @@
 $kind: http-request
 method: GET
-url: '{{catalogBaseUrl}}/content'
+url: "{{gatewayBaseUrl}}/content"
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
 order: 1000
-description: "Get all content items. Supports optional filtering by genre, contentType, and contentStatus."
+description: Get all content items. Supports optional filtering by genre, contentType, and contentStatus.
 queryParams:
   - key: genre
-    value: ''
+    value: ""
     disabled: true
   - key: contentType
-    value: ''
+    value: ""
     disabled: true
   - key: contentStatus
-    value: ''
+    value: ""
     disabled: true

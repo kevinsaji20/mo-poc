@@ -1,5 +1,9 @@
 $kind: http-request
 method: GET
-url: '{{catalogBaseUrl}}/content/{{contentId}}'
+url: "{{gatewayBaseUrl}}/content/{{contentId}}"
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
 order: 2000
-description: "Get a specific content item by its UUID."
+description: Get a specific content item by its UUID.

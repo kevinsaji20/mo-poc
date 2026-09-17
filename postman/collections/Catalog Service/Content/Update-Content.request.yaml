@@ -1,11 +1,14 @@
 $kind: http-request
 method: POST
-url: '{{catalogBaseUrl}}/content/{{contentId}}'
+url: "{{gatewayBaseUrl}}/content/{{contentId}}"
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
 order: 4000
 description: "Update existing content. Requires CONTENT_ADMIN role. status: DRAFT|PUBLISHED|ARCHIVED"
 headers:
-  - key: Authorization
-    value: 'Bearer {{accessToken}}'
+  Authorization: Bearer {{accessToken}}
 body:
   type: json
   content: |-

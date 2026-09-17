@@ -1,16 +1,19 @@
 $kind: http-request
 method: POST
-url: '{{catalogBaseUrl}}/content'
+url: "{{gatewayBaseUrl}}/content"
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
 order: 3000
 description: "Create new content. Requires CONTENT_ADMIN role. contentType: VIDEO|AUDIO|PODCAST. genre: ENTERTAINMENT|EDUCATION|NEWS|SPORTS|DOCUMENTARY"
 headers:
-  - key: Authorization
-    value: 'Bearer {{accessToken}}'
+  Authorization: Bearer {{accessToken}}
 body:
   type: json
   content: |-
     {
-      "title": "Sample Video",
+      "title": "Sample Video 3",
       "description": "A sample video description",
       "contentType": "VIDEO",
       "genre": "ENTERTAINMENT",

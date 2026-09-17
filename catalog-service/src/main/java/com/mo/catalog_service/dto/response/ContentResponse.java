@@ -20,7 +20,7 @@ public record ContentResponse(
         Integer durationSeconds,
         String thumbnailUrl,
         String streamUrl,
-        List<ContentTag> tags,
+        List<ContentTagResponse> tags,
         LocalDate releaseDate,
         String channelName,
         ContentStatus status,

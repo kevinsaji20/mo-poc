@@ -40,6 +40,7 @@ public class MediaContent {
     private String channelName;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private ContentStatus contentStatus;
 
     private OffsetDateTime createdAt;

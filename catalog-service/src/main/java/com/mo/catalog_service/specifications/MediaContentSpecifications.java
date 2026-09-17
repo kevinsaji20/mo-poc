@@ -32,7 +32,7 @@ public final class MediaContentSpecifications {
             if (contentStatus == null) {
                 return cb.conjunction();
             }
-            return cb.equal(root.get("status"), contentStatus);
+            return cb.equal(root.get("contentStatus"), contentStatus);
         };
     }
 }
