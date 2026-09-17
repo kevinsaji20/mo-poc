@@ -4,5 +4,6 @@ public enum SecurityEventType {
     SIGNUP,
     LOGIN,
     TOKEN_REFRESH,
-    PASSWORD_RESET
+    PASSWORD_RESET,
+    COMMON
 }
