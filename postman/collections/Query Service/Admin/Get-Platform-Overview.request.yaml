@@ -1,8 +1,7 @@
 $kind: http-request
 method: GET
-url: '{{queryBaseUrl}}/admin/metrics/platform-overview'
+url: "{{gatewayBaseUrl}}/admin/metrics/platform-overview"
 order: 1000
-description: "Get a platform-wide overview of all metrics. Requires ANALYTICS_ADMIN role."
+description: Get a platform-wide overview of all metrics. Requires ANALYTICS_ADMIN role.
 headers:
-  - key: Authorization
-    value: 'Bearer {{accessToken}}'
+  Authorization: Bearer {{accessToken}}

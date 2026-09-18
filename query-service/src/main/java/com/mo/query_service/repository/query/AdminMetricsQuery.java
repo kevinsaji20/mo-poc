@@ -10,7 +10,7 @@ public class AdminMetricsQuery {
             COALESCE(cm.play_count, 0) AS "playCount",
             COALESCE(cm.complete_count, 0) AS "completeCount",
             CASE
-                WHEN COALESCE(cm.play_count, 0) THEN 0
+                WHEN COALESCE(cm.play_count, 0) = 0  THEN 0
                 ELSE COALESCE(cm.complete_count, 0)::NUMERIC / cm.play_count
             END AS "completionRate",
             COALESCE(cv.peak_concurrent_viewers, 0) AS "peakConcurrentViewers",
@@ -25,24 +25,24 @@ public class AdminMetricsQuery {
                 SUM(unique_sessions) AS unique_sessions,
                 SUM(unique_users) AS unique_users
             FROM watch_time_metrics
-            WHERE window_start >= $1
-                AND window_end <= $2
+            WHERE window_start >= :from
+                AND window_end <= :to
         ) AS wtm
         CROSS JOIN (
             SELECT
                 SUM(play_count) AS play_count,
                 SUM(complete_count) AS complete_count
             FROM completion_metrics
-            WHERE window_start >= $1
-                AND window_end <= $2
+            WHERE window_start >= :from
+                AND window_end <= :to
         ) AS cm
         CROSS JOIN (
             SELECT
                 MAX(peak_viewers) AS peak_concurrent_viewers,
                 AVG(avg_viewers) AS avg_concurrent_viewers
             FROM concurrent_viewers_snapshot
-            WHERE window_start >= $1
-                AND window_end <= $2
+            WHERE window_start >= :from
+                AND window_end <= :to
         ) AS cv
     """;
 
@@ -54,13 +54,13 @@ public class AdminMetricsQuery {
             COALESCE(cm.play_count, 0) AS "playCount",
             COALESCE(cm.complete_count, 0) AS "completeCount",
             CASE
-                WHEN COALESCE(cm.play_count, 0) THEN 0
+                WHEN COALESCE(cm.play_count, 0) = 0 THEN 0
                 ELSE COALESCE(cm.complete_count, 0)::NUMERIC / cm.play_count
             END AS "completionRate",
             COALESCE(cv.peak_concurrent_viewers, 0) AS "peakConcurrentViewers",
             COALESCE(cv.avg_concurrent_viewers, 0) AS "avgConcurrentViewers"
         FROM (
-            SELECT unnest(CAST(:$3 AS UUID[])) AS content_id
+            SELECT unnest(CAST(:contendIds AS UUID[])) AS content_id
         ) AS ids
         LEFT JOIN (
             SELECT
@@ -71,8 +71,8 @@ public class AdminMetricsQuery {
                     ELSE SUM(total_watch_time_ms) / SUM(unique_sessions)
                 END AS avg_watch_duration_ms
             FROM watch_time_metrics
-            WHERE window_start >= $1
-                AND window_end <= $2
+            WHERE window_start >= :from
+                AND window_end <= :to
             GROUP BY content_id
         ) AS wtm
         ON wtm.content_id = ids.content_id
@@ -82,8 +82,8 @@ public class AdminMetricsQuery {
                 SUM(play_count) AS play_count,
                 SUM(complete_count) AS complete_count
             FROM completion_metrics
-            WHERE window_start >= $1
-                AND window_end <= $2
+            WHERE window_start >= :from
+                AND window_end <= :to
             GROUP BY content_id
         ) AS cm
         ON cm.content_id = ids.content_id
@@ -93,8 +93,8 @@ public class AdminMetricsQuery {
                 MAX(peak_viewers) AS peak_concurrent_viewers,
                 AVG(avg_viewers) AS avg_concurrent_viewers
             FROM concurrent_viewers_snapshot
-            WHERE window_start >= $1
-                AND window_end <= $2
+            WHERE window_start >= :from
+                AND window_end <= :to
             GROUP BY content_id
         ) AS cv
         ON cv.content_id = ids.content_id
