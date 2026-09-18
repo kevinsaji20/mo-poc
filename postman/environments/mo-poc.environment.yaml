@@ -9,8 +9,10 @@ values:
   - key: queryBaseUrl
     value: 'http://localhost:8083/api/v1'
   - key: accessToken
-    value: ''
+    secret: true
   - key: contentId
     value: 550e8400-e29b-41d4-a716-446655440001
   - key: genre
     value: ENTERTAINMENT
+  - key: processingBaseUrl
+    value: ''

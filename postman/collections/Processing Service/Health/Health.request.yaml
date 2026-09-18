@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{processingBaseUrl}}/health"
+method: GET
+order: 1789711219957
