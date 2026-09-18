@@ -1,11 +1,14 @@
 $kind: http-request
 method: POST
-url: '{{ingestionBaseUrl}}/events/batch'
+url: "{{gatewayBaseUrl}}/events/batch"
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
 order: 2000
-description: "Submit a batch of engagement events (max 50). Requires EVENT_INGEST role."
+description: Submit a batch of engagement events (max 50). Requires EVENT_INGEST role.
 headers:
-  - key: Authorization
-    value: 'Bearer {{accessToken}}'
+  Authorization: Bearer {{accessToken}}
 body:
   type: json
   content: |-

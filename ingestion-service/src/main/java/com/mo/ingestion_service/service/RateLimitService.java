@@ -14,10 +14,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RateLimitService {
     @Value("${spring.rate.limit}")
-    private static long LIMIT;
+    private long LIMIT;
 
     @Value("${spring.rate.limit.window.seconds}")
-    private static long WINDOW_SECONDS ;
+    private long WINDOW_SECONDS;
 
     private final StringRedisTemplate redisTemplate;
     private final RedisScript<Long> rateLimitScript;
