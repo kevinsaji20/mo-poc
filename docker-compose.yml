@@ -11,7 +11,7 @@ services:
       ports:
         - "${POSTGRES_HOST_PORT}:${DB_PORT}"
       volumes:
-        - postgres:/data/postgres
+        - postgres:/var/lib/postgresql/data
         - ./db-init:/docker-entrypoint-initdb.d
       healthcheck:
         test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME}" ]
@@ -89,7 +89,7 @@ services:
           APP_VERSION: $CATALOG_SERVICE_VERSION
           APP_PORT: $CATALOG_SERVICE_PORT
       image: "${CATALOG_IMAGE}:${CATALOG_SERVICE_VERSION}"
-      container_name: mo_poc_catalog_service
+      container_name: mo-poc-catalog-service
       ports:
         - "${CATALOG_SERVICE_PORT}:${CATALOG_SERVICE_PORT}"
       env_file:
@@ -112,7 +112,7 @@ services:
           APP_VERSION: $INGESTION_SERVICE_VERSION
           APP_PORT: $INGESTION_SERVICE_PORT
       image: "${INGESTION_IMAGE}:${INGESTION_SERVICE_VERSION}"
-      container_name: mo_poc_ingestion_service
+      container_name: mo-poc-ingestion-service
       ports:
         - "${INGESTION_SERVICE_PORT}:${INGESTION_SERVICE_PORT}"
       env_file:
@@ -133,7 +133,7 @@ services:
           APP_VERSION: $PROCESSING_SERVICE_VERSION
           APP_PORT: $PROCESSING_SERVICE_PORT
       image: "${PROCESSING_IMAGE}:${PROCESSING_SERVICE_VERSION}"
-      container_name: mo_poc_processing_service
+      container_name: mo-poc-processing-service
       ports:
         - "${PROCESSING_SERVICE_PORT}:${PROCESSING_SERVICE_PORT}"
       env_file:
@@ -154,7 +154,7 @@ services:
           APP_VERSION: $QUERY_SERVICE_VERSION
           APP_PORT: $QUERY_SERVICE_PORT
       image: "${QUERY_IMAGE}:${QUERY_SERVICE_VERSION}"
-      container_name: mo_poc_query_service
+      container_name: mo-poc-query-service
       ports:
         - "${QUERY_SERVICE_PORT}:${QUERY_SERVICE_PORT}"
       env_file:
@@ -177,7 +177,7 @@ services:
         APP_VERSION: $API_GATEWAY_VERSION
         APP_PORT: $API_GATEWAY_PORT
     image: "${GATEWAY_IMAGE}:${API_GATEWAY_VERSION}"
-    container_name: mo_poc_api_gateway
+    container_name: mo-poc-api-gateway
     ports:
       - "${API_GATEWAY_PORT}:${API_GATEWAY_PORT}"
     env_file:

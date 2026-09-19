@@ -24,7 +24,7 @@ public class TrendsController {
     private final TrendsService trendsService;
 
     @GetMapping("/top-content")
-    @PreAuthorize("hasRole('ANALYTICS_READ'")
+    @PreAuthorize("hasRole('ANALYTICS_READ')")
     public ResponseEntity<List<TopContentResponse>> getTopContent(
             @ValidMetricQuery MetricsQueryRequest queryParams
     ) {
@@ -36,7 +36,7 @@ public class TrendsController {
     }
 
     @GetMapping("/most-completed")
-    @PreAuthorize("hasRole('ANALYTICS_READ'")
+    @PreAuthorize("hasRole('ANALYTICS_READ')")
     public ResponseEntity<List<MostCompletedResponse>> getMostCompleted(
             @ValidMetricQuery MetricsQueryRequest queryParams
     ) {
@@ -48,7 +48,7 @@ public class TrendsController {
     }
 
     @GetMapping("/genre/{genre}")
-    @PreAuthorize("hasRole('ANALYTICS_READ'")
+    @PreAuthorize("hasRole('ANALYTICS_READ')")
     public ResponseEntity<List<GenreTrendResponse>> getGenreTrend(
             @PathVariable String genre,
             @ValidMetricQuery MetricsQueryRequest queryParams

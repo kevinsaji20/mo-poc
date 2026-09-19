@@ -78,4 +78,13 @@ public class ContentController {
                 .body(contentService.getGenres());
     }
 
+    @GetMapping("/genre/{genre}")
+    public ResponseEntity<List<ContentResponse>> getContentByGenre(
+            @PathVariable String genre
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(contentService.getContentByGenre(genre));
+    }
+
 }

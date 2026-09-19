@@ -10,7 +10,7 @@ public class MetricsQuery {
             cm.play_count AS "playCount",
             cm.complete_count AS "completeCount",
             CASE
-                WHEN COALESCE(cm.play_count, 0) THEN 0
+                WHEN COALESCE(cm.play_count, 0) = 0 THEN 0
                 ELSE COALESCE(cm.complete_count, 0)::NUMERIC / cm.play_count
             END AS "completionRate",
             cv.peak_viewers AS "peakViewers",

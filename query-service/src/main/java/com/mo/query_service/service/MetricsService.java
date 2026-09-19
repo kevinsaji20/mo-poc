@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -87,7 +88,7 @@ public class MetricsService {
 
         List<WatchTimeResponse>  response = projections.stream()
                 .map(projection -> new WatchTimeResponse(
-                        projection.getBucket(),
+                        projection.getBucket().atOffset(ZoneOffset.UTC),
                         projection.getTotalWatchTimeMs(),
                         projection.getUniqueSessions(),
                         projection.getUniqueUsers()
@@ -141,7 +142,7 @@ public class MetricsService {
                                     )
                                     .multiply(HUNDRED);
                     return new CompletionResponse(
-                            projection.getBucket(),
+                            projection.getBucket().atOffset(ZoneOffset.UTC),
                             playCount,
                             completeCount,
                             completionRate
@@ -220,7 +221,7 @@ public class MetricsService {
 
         List<ConcurrentViewersResponse> response = projections.stream()
                 .map(projection -> new ConcurrentViewersResponse(
-                        projection.getBucket(),
+                        projection.getBucket().atOffset(ZoneOffset.UTC),
                         projection.getPeakViewers(),
                         projection.getAvgViewers()
                 ))

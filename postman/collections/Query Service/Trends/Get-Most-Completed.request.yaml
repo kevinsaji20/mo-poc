@@ -1,8 +1,7 @@
 $kind: http-request
 method: GET
-url: '{{queryBaseUrl}}/trends/most-completed'
+url: "{{gatewayBaseUrl}}/trends/most-completed"
 order: 2000
-description: "Get most completed content items. Requires ANALYTICS_READ role."
+description: Get most completed content items. Requires ANALYTICS_READ role.
 headers:
-  - key: Authorization
-    value: 'Bearer {{accessToken}}'
+  Authorization: Bearer {{accessToken}}

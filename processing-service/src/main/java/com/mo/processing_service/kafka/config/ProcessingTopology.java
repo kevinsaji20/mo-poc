@@ -48,10 +48,10 @@ public class ProcessingTopology {
                 )
         );
 
-        watchTimeTopology.build(events);
-        completionRateTopology.build(events);
-        dropoffHeatmapTopology.build(events);
-        concurrentViewerTopology.build(events);
+        watchTimeTopology.build(events, eventEnvelopeSerde);
+        completionRateTopology.build(events, eventEnvelopeSerde);
+        dropoffHeatmapTopology.build(events, eventEnvelopeSerde);
+        concurrentViewerTopology.build(events, eventEnvelopeSerde);
 
         return events;
     }

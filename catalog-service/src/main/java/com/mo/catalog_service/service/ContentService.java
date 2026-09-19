@@ -165,4 +165,12 @@ public class ContentService {
     public List<Genre> getGenres() {
         return List.of(Genre.values());
     }
+
+    @Transactional(readOnly = true)
+    public List<ContentResponse> getContentByGenre(String genre) {
+        List<MediaContent> contents = mediaContentRepository.findByGenre(Genre.valueOf(genre.toUpperCase()));
+        return contents.stream()
+                .map(contentMapper::toResponse)
+                .toList();
+    }
 }

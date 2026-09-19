@@ -13,7 +13,7 @@ body:
   type: json
   content: |-
     {
-      "title": "Sample Video 3",
+      "title": "Sample Video 4",
       "description": "A sample video description",
       "contentType": "VIDEO",
       "genre": "ENTERTAINMENT",

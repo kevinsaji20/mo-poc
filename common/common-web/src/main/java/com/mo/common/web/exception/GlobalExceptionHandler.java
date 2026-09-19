@@ -2,6 +2,7 @@ package com.mo.common.web.exception;
 
 import com.mo.common.web.enums.ErrorCode;
 import com.mo.common.web.response.ErrorResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.OffsetDateTime;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -17,6 +19,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBaseException(
             BaseException exception
     ) {
+        log.error("BaseException caught: {}", exception.getMessage(), exception);
 
         ErrorResponse response = ErrorResponse.builder()
                 .success(false)
@@ -34,6 +37,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleValidation(
             MethodArgumentNotValidException ex
     ) {
+        log.error("Validation error occurred", ex);
 
         String message = ex.getBindingResult()
                 .getFieldErrors()
@@ -56,6 +60,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleException(
             Exception ex
     ) {
+
+        // Log unexpected exceptions for diagnostics
+        log.error("Unhandled exception caught in GlobalExceptionHandler", ex);
 
         ErrorResponse response = ErrorResponse.builder()
                 .success(false)

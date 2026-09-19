@@ -9,6 +9,7 @@ import com.mo.processing_service.entity.DropoffHeatmap;
 import com.mo.processing_service.kafka.producer.ComputedMetricsProducer;
 import com.mo.processing_service.kafka.state.dropoff.DropoffAggregate;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
@@ -32,7 +33,8 @@ public class DropoffHeatmapTopology {
     private final ComputedMetricsProducer computedMetricsProducer;
 
     public void build(
-            KStream<String, EventEnvelope<IngestionEvent>> events
+            KStream<String, EventEnvelope<IngestionEvent>> events,
+            Serde<EventEnvelope<IngestionEvent>> eventEnvelopeSerde
     ) {
         KTable<Windowed<String>, DropoffAggregate> dropoffMetrics =
                 events
@@ -56,7 +58,12 @@ public class DropoffHeatmapTopology {
                                     return event.contentId() + ":" + bucket;
                                 }
                         )
-                        .groupByKey()
+                        .groupByKey(
+                                Grouped.with(
+                                        Serdes.String(),
+                                        eventEnvelopeSerde
+                                )
+                        )
                         .windowedBy(
                                 TimeWindows.ofSizeWithNoGrace(DROPOFF_WINDOW)
                         )

@@ -19,7 +19,7 @@ public interface WatchTimeMetricsRepository
         extends JpaRepository<WatchTimeMetrics, WatchTimeMetricsId> {
     @Query(value = """
             SELECT
-                date_trunc(:granulity, window_start) AS bucket,
+                date_trunc(:granularity, window_start) AS bucket,
                 SUM(total_watch_time_ms) AS totalWatchTimeMs,
                 SUM(unique_sessions) AS uniqueSessions,
                 SUM(unique_users) AS uniqueUsers
@@ -27,7 +27,7 @@ public interface WatchTimeMetricsRepository
             WHERE content_id = :contentId
                 AND window_start >= :from
                 AND window_end <= :to
-            GROUP BY date_trunc(:granularity, window_start)
+            GROUP BY bucket
             ORDER BY bucket
         """, nativeQuery = true)
     public List<WatchTimeProjection> findWatchTime(

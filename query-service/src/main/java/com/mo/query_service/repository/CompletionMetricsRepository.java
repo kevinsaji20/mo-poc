@@ -26,7 +26,7 @@ public interface CompletionMetricsRepository
     WHERE content_id = :contentId
         AND window_start >= :from
         AND window_end <= :to
-    GROUP BY date_trunc(:granularity, window_start)
+    GROUP BY bucket
     ORDER BY bucket
     """, nativeQuery = true)
     List<CompletionProjection> findCompletion(

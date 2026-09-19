@@ -11,6 +11,7 @@ import com.mo.processing_service.kafka.state.watchtime.WatchTimeAggregate;
 import com.mo.processing_service.kafka.state.watchtime.WatchTimeContribution;
 import com.mo.processing_service.kafka.state.watchtime.WatchTimeSessionState;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
@@ -36,7 +37,8 @@ public class WatchTimeTopology {
     private final ComputedMetricsProducer computedMetricsProducer;
 
     public void build(
-            KStream<String, EventEnvelope<IngestionEvent>> events
+            KStream<String, EventEnvelope<IngestionEvent>> events,
+            Serde<EventEnvelope<IngestionEvent>> eventEnvelopeSerde
     ) {
         KTable<String, WatchTimeSessionState> sessionStates =
                 events
@@ -52,7 +54,12 @@ public class WatchTimeTopology {
                                 (key, envelope) ->
                                         envelope.payload().sessionId().toString()
                         )
-                        .groupByKey()
+                        .groupByKey(
+                                Grouped.with(
+                                        Serdes.String(),
+                                        eventEnvelopeSerde
+                                )
+                        )
                         .aggregate(
                                 WatchTimeSessionState::new,
                                 (sessionId, envelope, state) -> {

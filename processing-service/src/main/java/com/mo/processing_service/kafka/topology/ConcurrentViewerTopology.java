@@ -1,5 +1,6 @@
 package com.mo.processing_service.kafka.topology;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mo.common.kafka.enums.IngestionType;
 import com.mo.common.kafka.enums.MetricType;
 import com.mo.common.kafka.envelope.EventEnvelope;
@@ -11,6 +12,7 @@ import com.mo.processing_service.kafka.producer.ComputedMetricsProducer;
 import com.mo.processing_service.kafka.state.concurrent.ConcurrentViewerAggregate;
 import com.mo.processing_service.kafka.state.concurrent.ConcurrentViewerState;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
@@ -30,13 +32,16 @@ import java.util.UUID;
 public class ConcurrentViewerTopology {
     private static final Duration CONCURRENT_VIEWER_WINDOW = Duration.ofMinutes(5);
 
+    private final ObjectMapper objectMapper;
+
     private final JsonSerde<ConcurrentViewerState> concurrentViewerStateSerde;
     private final JsonSerde<ConcurrentViewerAggregate> concurrentViewerAggregateSerde;
 
     private final ComputedMetricsProducer computedMetricsProducer;
 
     public void build (
-            KStream<String, EventEnvelope<IngestionEvent>> events
+            KStream<String, EventEnvelope<IngestionEvent>> events,
+            Serde<EventEnvelope<IngestionEvent>> eventEnvelopeSerde
     ) {
         KTable<String, ConcurrentViewerState> activeViewerState =
                 events
@@ -50,7 +55,12 @@ public class ConcurrentViewerTopology {
                                 (key, envelope) ->
                                         envelope.payload().contentId().toString()
                         )
-                        .groupByKey()
+                        .groupByKey(
+                                Grouped.with(
+                                        Serdes.String(),
+                                        eventEnvelopeSerde
+                                )
+                        )
                         .aggregate(
                                 ConcurrentViewerState::new,
                                 (contentId, envelope, state) -> {

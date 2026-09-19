@@ -1,9 +1,9 @@
 package com.mo.query_service.projections;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 
 public interface WatchTimeProjection {
-    OffsetDateTime getBucket();
+    Instant getBucket();
     Long getTotalWatchTimeMs();
     Long getUniqueSessions();
     Long getUniqueUsers();

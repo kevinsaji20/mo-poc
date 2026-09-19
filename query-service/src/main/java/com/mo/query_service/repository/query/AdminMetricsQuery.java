@@ -60,7 +60,7 @@ public class AdminMetricsQuery {
             COALESCE(cv.peak_concurrent_viewers, 0) AS "peakConcurrentViewers",
             COALESCE(cv.avg_concurrent_viewers, 0) AS "avgConcurrentViewers"
         FROM (
-            SELECT unnest(CAST(:contendIds AS UUID[])) AS content_id
+            SELECT unnest(ARRAY[:contentIds]::UUID[]) AS content_id
         ) AS ids
         LEFT JOIN (
             SELECT

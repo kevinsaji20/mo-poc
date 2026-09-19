@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -96,7 +97,7 @@ class MetricsServiceTest {
     void getCompletion_calculatesRateAndCaches() {
         UUID contentId = UUID.randomUUID();
         CompletionProjection projection = mock(CompletionProjection.class);
-        when(projection.getBucket()).thenReturn(OffsetDateTime.parse("2024-01-01T00:00:00Z"));
+        when(projection.getBucket()).thenReturn(Instant.parse("2024-01-01T00:00:00Z"));
         when(projection.getPlayCount()).thenReturn(100L);
         when(projection.getCompleteCount()).thenReturn(40L);
         when(catalogClient.contentExists(contentId)).thenReturn(true);
@@ -134,7 +135,7 @@ class MetricsServiceTest {
     void getConcurrentViewers_mapsProjectionValues() {
         UUID contentId = UUID.randomUUID();
         ConcurrentViewersProjection projection = mock(ConcurrentViewersProjection.class);
-        when(projection.getBucket()).thenReturn(OffsetDateTime.parse("2024-01-01T00:00:00Z"));
+        when(projection.getBucket()).thenReturn(Instant.parse("2024-01-01T00:00:00Z"));
         when(projection.getPeakViewers()).thenReturn(8);
         when(projection.getAvgViewers()).thenReturn(new BigDecimal("3.25"));
         when(catalogClient.contentExists(contentId)).thenReturn(true);
