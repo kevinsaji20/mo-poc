@@ -1,0 +1,11 @@
+$kind: http-request
+method: DELETE
+url: "{{gatewayBaseUrl}}/content/{{contentId}}"
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+order: 5000
+description: Archive (soft-delete) content by ID. Requires CONTENT_ADMIN role.
+headers:
+  Authorization: Bearer {{accessToken}}

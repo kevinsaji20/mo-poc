@@ -1,0 +1,15 @@
+$kind: http-request
+order: 1000
+method: POST
+url: "{{gatewayBaseUrl}}/auth/signup"
+description: Register a new user. provider can be LOCAL or GOOGLE
+body:
+  type: json
+  content: |-
+    {
+      "email": "kevinsaji20@gmail.com",
+      "fullName": "Kevin Saji",
+      "username": "kevinsaji20",
+      "password": "password",
+      "provider": "LOCAL"
+    }

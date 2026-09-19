@@ -1,0 +1,3 @@
+$kind: collection
+name: "Ingestion Service"
+description: "Engagement event ingestion endpoints for tracking user media interactions"

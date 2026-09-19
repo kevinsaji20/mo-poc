@@ -1,0 +1,6 @@
+$kind: http-request
+name: Health Check
+order: 1000
+method: GET
+url: '{{gatewayBaseUrl}}/health'
+description: Check the health status of the API Gateway service.

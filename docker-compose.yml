@@ -1,0 +1,206 @@
+services:
+  postgres:
+      image: postgres:16-alpine
+      container_name: postgres_mo_poc
+      restart: always
+      environment:
+        POSTGRES_USER: $DB_USERNAME
+        POSTGRES_PASSWORD: $DB_PASSWORD
+        TZ: 'Asia/Kolkata'
+        PGTZ: 'Asia/Kolkata'
+      ports:
+        - "${POSTGRES_HOST_PORT}:${DB_PORT}"
+      volumes:
+        - postgres:/var/lib/postgresql/data
+        - ./db-init:/docker-entrypoint-initdb.d
+      healthcheck:
+        test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME}" ]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+        start_period: 10s
+      networks:
+        - mo-poc-network
+
+  redis:
+      image: redis:7-alpine
+      container_name: redis_mo_poc
+      restart: always
+      networks:
+        - mo-poc-network
+      ports:
+        - "${REDIS_PORT}:${REDIS_PORT}"
+      volumes:
+        - redis_data:/data
+      healthcheck:
+        test: [ "CMD", "redis-cli", "ping" ]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+
+  kafka:
+      image: confluentinc/cp-kafka:7.6.0
+      container_name: mo_poc_kafka
+      ports:
+        - "${KAFKA_PORT}:${KAFKA_PORT}"
+      environment:
+          # KRaft settings
+          KAFKA_NODE_ID: 1
+          KAFKA_PROCESS_ROLES: "broker,controller"
+          KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+
+          # Listeners
+          KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
+          KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://mo_poc_kafka:9092"
+          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT"
+          KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+
+          # Log dirs (required)
+          KAFKA_LOG_DIRS: "/var/lib/kafka/data"
+
+          # Single-node safe configs
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+          KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+          KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+          # Cluster ID (required for KRaft)
+          CLUSTER_ID: "49mD72ItQN6t6lKzMmdVMw"  # can be any base64-like string
+      volumes:
+          - kafka_data:/var/lib/kafka/data
+      restart: unless-stopped
+      healthcheck:
+        test:
+          [
+            "CMD-SHELL",
+            "kafka-broker-api-versions --bootstrap-server localhost:9092 > /dev/null 2>&1"
+          ]
+        interval: 10s
+        timeout: 10s
+        retries: 10
+        start_period: 20s
+      networks:
+        - mo-poc-network
+
+  catalog-service:
+      build:
+        context: .
+        dockerfile: catalog-service/Dockerfile
+        args:
+          APP_VERSION: $CATALOG_SERVICE_VERSION
+          APP_PORT: $CATALOG_SERVICE_PORT
+      image: "${CATALOG_IMAGE}:${CATALOG_SERVICE_VERSION}"
+      container_name: mo-poc-catalog-service
+      ports:
+        - "${CATALOG_SERVICE_PORT}:${CATALOG_SERVICE_PORT}"
+      env_file:
+        - .env
+      depends_on:
+        postgres:
+          condition: service_healthy
+        kafka:
+          condition: service_healthy
+        redis:
+          condition: service_healthy
+      networks:
+        - mo-poc-network
+
+  ingestion-service:
+      build:
+        context: .
+        dockerfile: ingestion-service/Dockerfile
+        args:
+          APP_VERSION: $INGESTION_SERVICE_VERSION
+          APP_PORT: $INGESTION_SERVICE_PORT
+      image: "${INGESTION_IMAGE}:${INGESTION_SERVICE_VERSION}"
+      container_name: mo-poc-ingestion-service
+      ports:
+        - "${INGESTION_SERVICE_PORT}:${INGESTION_SERVICE_PORT}"
+      env_file:
+        - .env
+      depends_on:
+        kafka:
+          condition: service_healthy
+        redis:
+          condition: service_healthy
+      networks:
+        - mo-poc-network
+
+  processing-service:
+      build:
+        context: .
+        dockerfile: processing-service/Dockerfile
+        args:
+          APP_VERSION: $PROCESSING_SERVICE_VERSION
+          APP_PORT: $PROCESSING_SERVICE_PORT
+      image: "${PROCESSING_IMAGE}:${PROCESSING_SERVICE_VERSION}"
+      container_name: mo-poc-processing-service
+      ports:
+        - "${PROCESSING_SERVICE_PORT}:${PROCESSING_SERVICE_PORT}"
+      env_file:
+        - .env
+      depends_on:
+        postgres:
+          condition: service_healthy
+        kafka:
+          condition: service_healthy
+      networks:
+        - mo-poc-network
+
+  query-service:
+      build:
+        context: .
+        dockerfile: query-service/Dockerfile
+        args:
+          APP_VERSION: $QUERY_SERVICE_VERSION
+          APP_PORT: $QUERY_SERVICE_PORT
+      image: "${QUERY_IMAGE}:${QUERY_SERVICE_VERSION}"
+      container_name: mo-poc-query-service
+      ports:
+        - "${QUERY_SERVICE_PORT}:${QUERY_SERVICE_PORT}"
+      env_file:
+        - .env
+      depends_on:
+        postgres:
+          condition: service_healthy
+        kafka:
+          condition: service_healthy
+        redis:
+          condition: service_healthy
+      networks:
+        - mo-poc-network
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+      args:
+        APP_VERSION: $API_GATEWAY_VERSION
+        APP_PORT: $API_GATEWAY_PORT
+    image: "${GATEWAY_IMAGE}:${API_GATEWAY_VERSION}"
+    container_name: mo-poc-api-gateway
+    ports:
+      - "${API_GATEWAY_PORT}:${API_GATEWAY_PORT}"
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      catalog-service:
+        condition: service_started
+      ingestion-service:
+        condition: service_started
+      query-service:
+        condition: service_started
+    networks:
+      - mo-poc-network
+
+volumes:
+  postgres:
+    driver: local
+  redis_data:
+    driver: local
+  kafka_data:
+    driver: local
+networks:
+  mo-poc-network:
+    external: true

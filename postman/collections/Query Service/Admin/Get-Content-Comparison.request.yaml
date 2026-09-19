@@ -1,0 +1,12 @@
+$kind: http-request
+method: GET
+url: "{{gatewayBaseUrl}}/admin/metrics/content-comparison?contentIds={{contentId}}"
+order: 2000
+description: Compare metrics across multiple content items. Pass multiple contentIds as query params. Requires ANALYTICS_ADMIN role.
+headers:
+  Authorization: Bearer {{accessToken}}
+queryParams:
+  - key: contentIds
+    value: "{{contentId}}"
+    disabled: false
+    description: 2dae66f2-9008-476d-ae1c-73168a68a1a2

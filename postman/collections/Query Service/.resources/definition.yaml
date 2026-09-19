@@ -1,0 +1,3 @@
+$kind: collection
+name: "Query Service"
+description: "Analytics query endpoints for metrics, trends, and admin reporting"

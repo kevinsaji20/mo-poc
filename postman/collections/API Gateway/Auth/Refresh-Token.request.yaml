@@ -1,0 +1,18 @@
+$kind: http-request
+name: Refresh Token
+scripts:
+  - type: afterResponse
+    code: "const response = pm.response.json();\r
+
+      \r
+
+      if (response.status && response.accessToken) {\r
+
+      \    pm.environment.set(\"accessToken\", response.accessToken);\r
+
+      }"
+    language: text/javascript
+order: 3000
+method: POST
+url: "{{gatewayBaseUrl}}/auth/refresh"
+description: Refresh the access token using the refresh_token cookie (automatically sent by browser/Postman).

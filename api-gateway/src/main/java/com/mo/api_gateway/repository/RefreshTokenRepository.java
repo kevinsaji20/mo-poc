@@ -1,0 +1,14 @@
+package com.mo.api_gateway.repository;
+
+
+import com.mo.api_gateway.entity.RefreshTokens;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+import java.util.UUID;
+
+public interface RefreshTokenRepository extends JpaRepository<RefreshTokens, UUID> {
+    Optional<RefreshTokens> findByTokenIdAndIsRevokedFalse(UUID tokenId);
+
+    Optional<RefreshTokens> findByUserIdAndDeviceIdAndIsRevokedFalse(UUID userId, String deviceId);
+}

@@ -1,0 +1,7 @@
+$kind: http-request
+method: GET
+url: "{{gatewayBaseUrl}}/trends/most-completed"
+order: 2000
+description: Get most completed content items. Requires ANALYTICS_READ role.
+headers:
+  Authorization: Bearer {{accessToken}}

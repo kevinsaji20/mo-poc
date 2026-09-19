@@ -1,0 +1,47 @@
+package com.mo.api_gateway.util;
+
+import com.mo.api_gateway.dto.response.LoginResult;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.stereotype.Component;
+
+import java.time.Duration;
+
+@Component
+public class CookieUtil {
+    @Value("${security.refresh-token-expiration}")
+    private long refreshTokenExpiration;
+
+    @Value("${spring.webflux.base-path}")
+    private String basePath;
+
+    private ResponseCookie createRefreshTokenCookie(String token) {
+        return ResponseCookie.from("refresh_token", token)
+                .httpOnly(true)
+                .secure(true)
+                .path(basePath + "/auth/refresh")
+                .sameSite("Strict")
+                .maxAge(Duration.ofSeconds(refreshTokenExpiration))
+                .build();
+    }
+
+
+    private ResponseCookie clearCookie(String name) {
+        return ResponseCookie.from(name, "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .build();
+    }
+
+    public void addAuthCookie(LoginResult result, ServerHttpResponse httpResponse) {
+        httpResponse.addCookie(createRefreshTokenCookie(result.refreshToken()));
+    }
+
+    public void clearAuthCookie(ServerHttpResponse httpResponse) {
+        httpResponse.addCookie(clearCookie("refresh_token"));
+    }
+}

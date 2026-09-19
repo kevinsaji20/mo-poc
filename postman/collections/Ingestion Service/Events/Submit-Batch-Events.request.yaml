@@ -1,0 +1,42 @@
+$kind: http-request
+method: POST
+url: "{{gatewayBaseUrl}}/events/batch"
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+order: 2000
+description: Submit a batch of engagement events (max 50). Requires EVENT_INGEST role.
+headers:
+  Authorization: Bearer {{accessToken}}
+body:
+  type: json
+  content: |-
+    {
+      "events": [
+        {
+          "eventId": "550e8400-e29b-41d4-a716-446655440000",
+          "contentId": "550e8400-e29b-41d4-a716-446655440001",
+          "userId": "550e8400-e29b-41d4-a716-446655440002",
+          "eventType": "PLAY",
+          "playbackPositionMs": 0,
+          "totalDurationMs": 3600000,
+          "eventTimeStamp": "2024-01-15T10:30:00+05:30",
+          "sessionId": "550e8400-e29b-41d4-a716-446655440003",
+          "deviceType": "DESKTOP",
+          "region": "IN"
+        },
+        {
+          "eventId": "550e8400-e29b-41d4-a716-446655440010",
+          "contentId": "550e8400-e29b-41d4-a716-446655440001",
+          "userId": "550e8400-e29b-41d4-a716-446655440002",
+          "eventType": "COMPLETE",
+          "playbackPositionMs": 3600000,
+          "totalDurationMs": 3600000,
+          "eventTimeStamp": "2024-01-15T11:30:00+05:30",
+          "sessionId": "550e8400-e29b-41d4-a716-446655440003",
+          "deviceType": "DESKTOP",
+          "region": "IN"
+        }
+      ]
+    }

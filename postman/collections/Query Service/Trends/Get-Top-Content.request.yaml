@@ -1,0 +1,7 @@
+$kind: http-request
+method: GET
+url: "{{gatewayBaseUrl}}/trends/top-content"
+order: 1000
+description: Get top performing content across the platform. Requires ANALYTICS_READ role.
+headers:
+  Authorization: Bearer {{accessToken}}

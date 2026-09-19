@@ -1,0 +1,9 @@
+$kind: http-request
+method: GET
+url: "{{gatewayBaseUrl}}/content/genres"
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+order: 6000
+description: Get all available content genres.

@@ -1,0 +1,24 @@
+$kind: http-request
+scripts:
+  - type: afterResponse
+    code: "const response = pm.response.json();\r
+
+      \r
+
+      if (response.status && response.accessToken) {\r
+
+      \    pm.environment.set(\"accessToken\", response.accessToken);\r
+
+      }"
+    language: text/javascript
+order: 2000
+method: POST
+url: "{{gatewayBaseUrl}}/auth/login"
+description: Login with email/username and password. Returns access token and sets refresh_token cookie.
+body:
+  type: json
+  content: |-
+    {
+      "login": "kevinsaji20@gmail.com",
+      "password": "password"
+    }

@@ -1,0 +1,17 @@
+$kind: http-request
+method: GET
+url: "{{gatewayBaseUrl}}/metrics/{{contentId}}/concurrent"
+order: 5000
+description: Get concurrent viewers data for a content item. Requires ANALYTICS_READ role.
+headers:
+  Authorization: Bearer {{accessToken}}
+queryParams:
+  - key: from
+    value: 2024-01-01T00:00:00Z
+    disabled: true
+  - key: to
+    value: 2024-01-31T23:59:59Z
+    disabled: true
+  - key: granularity
+    value: DAY
+    disabled: true
